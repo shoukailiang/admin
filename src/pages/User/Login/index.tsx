@@ -126,11 +126,8 @@ const Login: React.FC = () => {
         message.success(defaultLoginSuccessMessage);
         await fetchUserInfo();
         const urlParams = new URL(window.location.href).searchParams;
-        history.push(urlParams.get('redirect') || '/welcome');
+        history.push(urlParams.get('redirect') || '/');
 
-        // 这里为了方便，localStorage存一下username和password
-        localStorage.setItem("username",values?.username);
-        localStorage.setItem("password",values?.password);
         return;
       }
       // 如果失败去设置用户错误信息

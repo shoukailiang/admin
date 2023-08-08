@@ -62,4 +62,22 @@ export default {
   'pages.searchTable.tenThousand': '万',
   'pages.searchTable.batchDeletion': '批量删除',
   'pages.searchTable.batchApproval': '批量审批',
+  // 员工管理
+  'pages.employeeManagement.title': '员工管理',
+  // 员工姓名
+  'pages.employeeManagement.employeeName': '员工姓名',
+  // 员工账号
+  'pages.employeeManagement.employeeAccount': '员工账号',
+  // 员工手机号
+  'pages.employeeManagement.employeePhone': '员工手机号',
+  // 账号状态
+  'pages.employeeManagement.accountStatus': '账号状态',
+  // 账号状态-正常
+  'pages.employeeManagement.accountStatus.normal': '正常',
+  // 账号状态-冻结
+  'pages.employeeManagement.accountStatus.freeze': '冻结',
+  // 编辑
+  'pages.employeeManagement.edit': '编辑',
+  // 禁用
+  'pages.employeeManagement.disable': '禁用',
 };

@@ -16,13 +16,13 @@ export type FormValueType = {
   type?: string;
   time?: string;
   frequency?: string;
-} & Partial<API.RuleListItem>;
+} & Partial<API.EmployeeListItem>;
 
 export type UpdateFormProps = {
   onCancel: (flag?: boolean, formVals?: FormValueType) => void;
   onSubmit: (values: FormValueType) => Promise<void>;
   updateModalOpen: boolean;
-  values: Partial<API.RuleListItem>;
+  values: Partial<API.EmployeeListItem>;
 };
 
 const UpdateForm: React.FC<UpdateFormProps> = (props) => {
@@ -39,8 +39,8 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
             bodyStyle={{ padding: '32px 40px 48px' }}
             destroyOnClose
             title={intl.formatMessage({
-              id: 'pages.searchTable.updateForm.ruleConfig',
-              defaultMessage: '规则配置',
+              id: 'pages.employeeManagement.title',
+              defaultMessage: '员工管理',
             })}
             open={props.updateModalOpen}
             footer={submitter}
@@ -57,7 +57,7 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
       <StepsForm.StepForm
         initialValues={{
           name: props.values.name,
-          desc: props.values.desc,
+          phone: props.values.phone,
         }}
         title={intl.formatMessage({
           id: 'pages.searchTable.updateForm.basicConfig',
@@ -67,8 +67,8 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
         <ProFormText
           name="name"
           label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.ruleName.nameLabel',
-            defaultMessage: '规则名称',
+            id: 'pages.employeeManagement.employeeName',
+            defaultMessage: '员工姓名',
           })}
           width="md"
           rules={[

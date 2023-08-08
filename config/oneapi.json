@@ -403,7 +403,7 @@
       "PageParams": {
         "type": "object",
         "properties": {
-          "current": {
+          "page": {
             "type": "number"
           },
           "pageSize": {

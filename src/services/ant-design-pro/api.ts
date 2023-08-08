@@ -2,6 +2,8 @@
 /* eslint-disable */
 import { request } from '@umijs/max';
 
+
+
 /** 获取当前的用户 GET /api/currentUser */
 export async function currentUser(options?: { [key: string]: any }) {
   return request<{
@@ -12,8 +14,8 @@ export async function currentUser(options?: { [key: string]: any }) {
       'Content-Type': 'application/json',
     },
     data: {
-      "username":localStorage.getItem('username'),
-      "password":localStorage.getItem('password')
+      "username":"admin",
+      "password":123456
     },
     ...(options || {}),
   });
@@ -47,8 +49,8 @@ export async function getNotices(options?: { [key: string]: any }) {
   });
 }
 
-/** 获取规则列表 GET /api/rule */
-export async function rule(
+/** 获取员工列表 GET /api/employee/page */
+export async function employee(
   params: {
     // query
     /** 当前的页码 */
@@ -58,18 +60,27 @@ export async function rule(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.RuleList>('/api/rule', {
+  let res:any = await request<API.EmployeeList>('/api/employee/page', {
     method: 'GET',
     params: {
-      ...params,
+      // 后端是page，所以多了这一步，antdesignpro是current
+      page: params.current,
+      pageSize: params.pageSize,
     },
     ...(options || {}),
   });
+  // 这里也是为了匹配前端antdesign的格式，离谱
+  const frontendData = {
+    ...res.data,
+    data: res.data.records, // 将 records 映射到 data
+    success: res.data.searchCount, // 将 searchCount 映射到 success
+  };
+  return frontendData;
 }
 
 /** 新建规则 PUT /api/rule */
 export async function updateRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/api/rule', {
+  return request<API.EmployeeListItem>('/api/rule', {
     method: 'PUT',
     ...(options || {}),
   });
@@ -77,7 +88,7 @@ export async function updateRule(options?: { [key: string]: any }) {
 
 /** 新建规则 POST /api/rule */
 export async function addRule(options?: { [key: string]: any }) {
-  return request<API.RuleListItem>('/api/rule', {
+  return request<API.EmployeeListItem>('/api/rule', {
     method: 'POST',
     ...(options || {}),
   });

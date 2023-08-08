@@ -43,26 +43,26 @@ declare namespace API {
     pageSize?: number;
   };
 
-  type RuleListItem = {
-    key?: number;
-    disabled?: boolean;
-    href?: string;
-    avatar?: string;
+  type EmployeeListItem = {
+    createTime?: string;
+    createUser?: string;
+    id?: string;
+    idNumber?: string;
     name?: string;
-    owner?: string;
-    desc?: string;
-    callNo?: number;
+    password?: string;
+    phone?: string;
+    sex?: string;
     status?: number;
-    updatedAt?: string;
-    createdAt?: string;
-    progress?: number;
+    updateTime?: string;
+    updateUser?: string;
+    username?: string;
   };
 
-  type RuleList = {
-    data?: RuleListItem[];
+  type EmployeeList = {
+    records?: EmployeeListItem[];
     /** 列表的内容总数 */
     total?: number;
-    success?: boolean;
+    searchCount?: boolean;
   };
 
   type FakeCaptcha = {
