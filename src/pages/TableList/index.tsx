@@ -114,7 +114,7 @@ const TableList: React.FC = () => {
           defaultMessage="Rule name"
         />
       ),
-      dataIndex: 'username',
+      dataIndex: 'name',
       tip: '姓名',
       render: (dom, entity) => {
         return (
@@ -131,7 +131,7 @@ const TableList: React.FC = () => {
     },
     {
       title: <FormattedMessage id="pages.employeeManagement.employeeAccount" defaultMessage="Description" />,
-      dataIndex: 'name',
+      dataIndex: 'username',
       valueType: 'textarea',
     },
     {

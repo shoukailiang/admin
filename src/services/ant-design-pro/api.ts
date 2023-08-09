@@ -63,6 +63,7 @@ export async function employee(
   let res:any = await request<API.EmployeeList>('/api/employee/page', {
     method: 'GET',
     params: {
+      ...params,
       // 后端是page，所以多了这一步，antdesignpro是current
       page: params.current,
       pageSize: params.pageSize,
