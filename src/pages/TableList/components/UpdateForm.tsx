@@ -1,9 +1,6 @@
 import {
-  ProFormDateTimePicker,
   ProFormRadio,
-  ProFormSelect,
   ProFormText,
-  ProFormTextArea,
   StepsForm,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
@@ -56,150 +53,97 @@ const UpdateForm: React.FC<UpdateFormProps> = (props) => {
     >
       <StepsForm.StepForm
         initialValues={{
-          name: props.values.name,
-          phone: props.values.phone,
+          ...props.values,
         }}
         title={intl.formatMessage({
           id: 'pages.searchTable.updateForm.basicConfig',
           defaultMessage: '基本信息',
         })}
       >
+      <ProFormText
+        disabled
+        label="id"
+          width="md"
+          name="id"
+        />
         <ProFormText
+        label="员工账号"
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage
+                  id="pages.employeeManagement.employeeAccount"
+                  defaultMessage="username is required"
+                />
+              ),
+            },
+          ]}
+          width="md"
+          name="username"
+        />
+          <ProFormText
+          label="员工姓名"
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage
+                  id="pages.employeeManagement.employeeName"
+                  defaultMessage="name is required"
+                />
+              ),
+            },
+          ]}
+          width="md"
           name="name"
-          label={intl.formatMessage({
-            id: 'pages.employeeManagement.employeeName',
-            defaultMessage: '员工姓名',
-          })}
-          width="md"
+        />
+        <ProFormText
+          label="手机号"
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.searchTable.updateForm.ruleName.nameRules"
-                  defaultMessage="请输入规则名称！"
+                  id="pages.employeeManagement.employeePhone"
+                  defaultMessage="phone is required"
                 />
               ),
             },
           ]}
-        />
-        <ProFormTextArea
-          name="desc"
           width="md"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.ruleDesc.descLabel',
-            defaultMessage: '规则描述',
-          })}
-          placeholder={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.ruleDesc.descPlaceholder',
-            defaultMessage: '请输入至少五个字符',
-          })}
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.searchTable.updateForm.ruleDesc.descRules"
-                  defaultMessage="请输入至少五个字符的规则描述！"
-                />
-              ),
-              min: 5,
-            },
-          ]}
-        />
-      </StepsForm.StepForm>
-      <StepsForm.StepForm
-        initialValues={{
-          target: '0',
-          template: '0',
-        }}
-        title={intl.formatMessage({
-          id: 'pages.searchTable.updateForm.ruleProps.title',
-          defaultMessage: '配置规则属性',
-        })}
-      >
-        <ProFormSelect
-          name="target"
-          width="md"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.object',
-            defaultMessage: '监控对象',
-          })}
-          valueEnum={{
-            0: '表一',
-            1: '表二',
-          }}
-        />
-        <ProFormSelect
-          name="template"
-          width="md"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.ruleProps.templateLabel',
-            defaultMessage: '规则模板',
-          })}
-          valueEnum={{
-            0: '规则模板一',
-            1: '规则模板二',
-          }}
+          name="phone"
         />
         <ProFormRadio.Group
-          name="type"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.ruleProps.typeLabel',
-            defaultMessage: '规则类型',
-          })}
-          options={[
-            {
-              value: '0',
-              label: '强',
-            },
-            {
-              value: '1',
-              label: '弱',
-            },
-          ]}
-        />
-      </StepsForm.StepForm>
-      <StepsForm.StepForm
-        initialValues={{
-          type: '1',
-          frequency: 'month',
-        }}
-        title={intl.formatMessage({
-          id: 'pages.searchTable.updateForm.schedulingPeriod.title',
-          defaultMessage: '设定调度周期',
-        })}
-      >
-        <ProFormDateTimePicker
-          name="time"
-          width="md"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.schedulingPeriod.timeLabel',
-            defaultMessage: '开始时间',
-          })}
+            name="sex"
+            rules={[
+              {
+                required: true,
+                message: '性别不能为空',
+              },
+            ]}
+            label="性别"
+            options={[
+              {
+                label: '女',
+                value: '0',
+              },
+              {
+                label: '男',
+                value: '1',
+              },
+            ]}
+          />
+          <ProFormText
+          label="身份证"
           rules={[
             {
               required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.searchTable.updateForm.schedulingPeriod.timeRules"
-                  defaultMessage="请选择开始时间！"
-                />
-              ),
+              message: "身份证号码不能为空",
             },
           ]}
-        />
-        <ProFormSelect
-          name="frequency"
-          label={intl.formatMessage({
-            id: 'pages.searchTable.updateForm.object',
-            defaultMessage: '监控对象',
-          })}
           width="md"
-          valueEnum={{
-            month: '月',
-            week: '周',
-          }}
+          name="idNumber"
         />
       </StepsForm.StepForm>
     </StepsForm>

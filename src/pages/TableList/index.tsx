@@ -1,4 +1,4 @@
-import { addUser, removeRule, employee, updateRule } from '@/services/ant-design-pro/api';
+import { addUser, removeRule, employee, updateUser } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -8,11 +8,10 @@ import {
   ProDescriptions,
   ProFormRadio,
   ProFormText,
-  ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Drawer, Input, message } from 'antd';
+import { Button, Drawer, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
@@ -45,10 +44,7 @@ const handleAdd = async (fields: API.EmployeeListItem) => {
 const handleUpdate = async (fields: FormValueType) => {
   const hide = message.loading('Configuring');
   try {
-    await updateRule({
-      name: fields.name,
-      phone: fields.phone,
-    });
+    await updateUser({...fields});
     hide();
 
     message.success('Configuration is successful');
@@ -83,6 +79,26 @@ const handleRemove = async (selectedRows: API.EmployeeListItem[]) => {
   }
 };
 
+
+// disable or enable user
+const DisableOrEnableUser = async (fields:API.EmployeeListItem)=>{
+  const hide = message.loading('Configuring');
+  try {
+    await updateUser({
+      id: fields.id,
+      status: fields.status===0?1:0,
+    });
+    hide();
+
+    message.success('Configuration is successful');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('Configuration failed, please try again!');
+    return false;
+  }
+}
+
 const TableList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
@@ -91,7 +107,7 @@ const TableList: React.FC = () => {
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
   /**
    * @en-US The pop-up window of the distribution update window
-   * @zh-CN 分布更新窗口的弹窗
+   * @zh-CN 更新窗口的弹窗
    * */
   const [updateModalOpen, handleUpdateModalOpen] = useState<boolean>(false);
 
@@ -196,11 +212,11 @@ const TableList: React.FC = () => {
         >
           <FormattedMessage id="pages.employeeManagement.edit" defaultMessage="Configuration" />
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          <FormattedMessage
-            id="pages.employeeManagement.disable"
-            defaultMessage="Subscribe to alerts"
-          />
+        <a key="" style={{color:record.status===1?'red':'green'}} onClick={()=>{
+          DisableOrEnableUser(record);
+          // 设置样式，禁用为红色
+        }}>
+          {record.status===0?<FormattedMessage id="pages.employeeManagement.enable" defaultMessage="Enable" />:<FormattedMessage id="pages.employeeManagement.disable" defaultMessage="Disable" />}
         </a>,
       ],
     },
@@ -251,7 +267,6 @@ const TableList: React.FC = () => {
                   id="pages.searchTable.totalServiceCalls"
                   defaultMessage="Total number of service calls"
                 />{' '}
-                {/* {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '} */}
                 <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
               </span>
             </div>

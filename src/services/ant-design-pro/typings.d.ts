@@ -44,9 +44,9 @@ declare namespace API {
   };
 
   type EmployeeListItem = {
+    id?: string;
     createTime?: string;
     createUser?: string;
-    id?: string;
     idNumber?: string;
     name?: string;
     password?: string;

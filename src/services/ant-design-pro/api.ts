@@ -79,15 +79,16 @@ export async function employee(
   return frontendData;
 }
 
-/** 新建规则 PUT /api/rule */
-export async function updateRule(options?: { [key: string]: any }) {
-  return request<API.EmployeeListItem>('/api/rule', {
+/** 更新用户 PUT /api/employee */
+export async function updateUser(body:API.EmployeeListItem,options?: { [key: string]: any }) {
+  return request<any>('/api/employee', {
     method: 'PUT',
+    data: body,
     ...(options || {}),
   });
 }
 
-/** 新建规则 POST /api/user */
+/** 新建用户 POST /api/user */
 export async function addUser(body:API.EmployeeListItem,options?: { [key: string]: any }) {
   return request<API.EmployeeListItem>('/api/employee', {
     method: 'POST',
