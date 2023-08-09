@@ -87,10 +87,11 @@ export async function updateRule(options?: { [key: string]: any }) {
   });
 }
 
-/** 新建规则 POST /api/rule */
-export async function addRule(options?: { [key: string]: any }) {
-  return request<API.EmployeeListItem>('/api/rule', {
+/** 新建规则 POST /api/user */
+export async function addUser(body:API.EmployeeListItem,options?: { [key: string]: any }) {
+  return request<API.EmployeeListItem>('/api/employee', {
     method: 'POST',
+    data: body,
     ...(options || {}),
   });
 }

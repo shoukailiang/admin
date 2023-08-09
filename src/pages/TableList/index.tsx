@@ -1,4 +1,4 @@
-import { addRule, removeRule, employee, updateRule } from '@/services/ant-design-pro/api';
+import { addUser, removeRule, employee, updateRule } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -6,6 +6,7 @@ import {
   ModalForm,
   PageContainer,
   ProDescriptions,
+  ProFormRadio,
   ProFormText,
   ProFormTextArea,
   ProTable,
@@ -18,13 +19,13 @@ import UpdateForm from './components/UpdateForm';
 
 /**
  * @en-US Add node
- * @zh-CN 添加节点
+ * @zh-CN 添加用户,点击添加按钮的时候
  * @param fields
  */
 const handleAdd = async (fields: API.EmployeeListItem) => {
   const hide = message.loading('正在添加');
   try {
-    await addRule({ ...fields });
+    await addUser({ ...fields });
     hide();
     message.success('Added successfully');
     return true;
@@ -278,8 +279,8 @@ const TableList: React.FC = () => {
       )}
       <ModalForm
         title={intl.formatMessage({
-          id: 'pages.searchTable.createForm.newRule',
-          defaultMessage: 'New rule',
+          id: 'pages.user.addUser',
+          defaultMessage: 'New user',
         })}
         width="400px"
         open={createModalOpen}
@@ -295,13 +296,30 @@ const TableList: React.FC = () => {
         }}
       >
         <ProFormText
+        label="员工账号"
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.searchTable.ruleName"
-                  defaultMessage="Rule name is required"
+                  id="pages.employeeManagement.employeeAccount"
+                  defaultMessage="username is required"
+                />
+              ),
+            },
+          ]}
+          width="md"
+          name="username"
+        />
+          <ProFormText
+          label="员工姓名"
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage
+                  id="pages.employeeManagement.employeeName"
+                  defaultMessage="name is required"
                 />
               ),
             },
@@ -309,7 +327,53 @@ const TableList: React.FC = () => {
           width="md"
           name="name"
         />
-        <ProFormTextArea width="md" name="desc" />
+        <ProFormText
+          label="手机号"
+          rules={[
+            {
+              required: true,
+              message: (
+                <FormattedMessage
+                  id="pages.employeeManagement.employeePhone"
+                  defaultMessage="phone is required"
+                />
+              ),
+            },
+          ]}
+          width="md"
+          name="phone"
+        />
+        <ProFormRadio.Group
+            name="sex"
+            rules={[
+              {
+                required: true,
+                message: '性别不能为空',
+              },
+            ]}
+            label="性别"
+            options={[
+              {
+                label: '女',
+                value: '0',
+              },
+              {
+                label: '男',
+                value: '1',
+              },
+            ]}
+          />
+          <ProFormText
+          label="身份证"
+          rules={[
+            {
+              required: true,
+              message: "身份证号码不能为空",
+            },
+          ]}
+          width="md"
+          name="idNumber"
+        />
       </ModalForm>
        <UpdateForm
         onSubmit={async (value) => {

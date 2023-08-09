@@ -80,4 +80,7 @@ export default {
   'pages.employeeManagement.edit': '编辑',
   // 禁用
   'pages.employeeManagement.disable': '禁用',
+    // 新建用户
+    'pages.user.addUser': '新增用户',
+
 };
