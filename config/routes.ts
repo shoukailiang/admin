@@ -46,10 +46,10 @@ export default [
     ],
   },
   {
-    name: 'list.table-list',
+    name: '员工管理',
     icon: 'table',
     path: '/list',
-    component: './TableList',
+    component: './UserList',
   },
   {
     path: '/',

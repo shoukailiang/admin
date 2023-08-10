@@ -99,7 +99,7 @@ const DisableOrEnableUser = async (fields:API.EmployeeListItem)=>{
   }
 }
 
-const TableList: React.FC = () => {
+const UserList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
@@ -214,7 +214,9 @@ const TableList: React.FC = () => {
         </a>,
         <a key="" style={{color:record.status===1?'red':'green'}} onClick={()=>{
           DisableOrEnableUser(record);
-          // 设置样式，禁用为红色
+          if(actionRef.current){
+            actionRef.current.reload();
+          }
         }}>
           {record.status===0?<FormattedMessage id="pages.employeeManagement.enable" defaultMessage="Enable" />:<FormattedMessage id="pages.employeeManagement.disable" defaultMessage="Disable" />}
         </a>,
@@ -390,7 +392,7 @@ const TableList: React.FC = () => {
           name="idNumber"
         />
       </ModalForm>
-       <UpdateForm
+      <UpdateForm
         onSubmit={async (value) => {
           const success = await handleUpdate(value);
           if (success) {
@@ -438,4 +440,4 @@ const TableList: React.FC = () => {
   );
 };
 
-export default TableList;
+export default UserList;
