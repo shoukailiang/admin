@@ -46,7 +46,7 @@ export default [
     ],
   },
   {
-    name: '员工管理',
+    name: 'staff',
     icon: 'table',
     path: '/list',
     component: './UserList',
