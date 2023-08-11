@@ -82,7 +82,18 @@ export default {
   'pages.employeeManagement.disable': '禁用',
   // 启用
   'pages.employeeManagement.enable': '启用',
-    // 新建用户
-    'pages.user.addUser': '新增用户',
-
+  // 新建用户
+  'pages.user.addUser': '新增用户',
+  // 分类名称
+  'pages.categoryManagement.categoryName': '分类名称',
+  // 分类类型
+  'pages.categoryManagement.categoryType': '分类类型',
+  // 操作时间
+  'pages.categoryManagement.operationTime': '操作时间',
+  // 排序
+  'pages.categoryManagement.sort': '排序',
+  // 编辑
+  'pages.categoryManagement.edit': '编辑',
+  // 删除
+  'pages.categoryManagement.delete': '删除',
 };

@@ -104,3 +104,49 @@ export async function removeRule(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+
+// 类别管理
+/** 获取类别列表 GET /api/category/page */
+export async function category(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  let res:any = await request<API.CategoryList>('/api/category/page', {
+    method: 'GET',
+    params: {
+      ...params,
+      // 后端是page，所以多了这一步，antdesignpro是current
+      page: params.current,
+      pageSize: params.pageSize,
+    },
+    ...(options || {}),
+  });
+  // 这里也是为了匹配前端antdesign的格式，离谱
+  const frontendData = {
+    ...res.data,
+    data: res.data.records, // 将 records 映射到 data
+    success: res.data.searchCount, // 将 searchCount 映射到 success
+  };
+  return frontendData;
+}
+
+// 新增分类
+export async function addCategoryDish(){
+
+}
+
+// 编辑分类
+export async function updateCategory(body:API.CategoryListItem, options?: { [key: string]: any }) {
+  return request<any>('/api/category', {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}

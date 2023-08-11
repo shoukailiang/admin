@@ -52,6 +52,12 @@ export default [
     component: './UserList',
   },
   {
+    name: 'category',
+    icon: 'table',
+    path: '/category',
+    component: './CategoryList',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

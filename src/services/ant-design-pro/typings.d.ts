@@ -65,6 +65,27 @@ declare namespace API {
     searchCount?: boolean;
   };
 
+
+  // CategoryList
+  type CategoryList ={
+    records?: CategoryListItem[];
+    /** 列表的内容总数 */
+    total?: number;
+    searchCount?: boolean;
+  }
+
+  type CategoryListItem = {
+    id?: string;
+    createTime?: string;
+    createUser?: string;
+    name?: string;
+    sort?: number;
+    type?: number;
+    updateTime?: string;
+    updateUser?: string;
+  }
+
+
   type FakeCaptcha = {
     code?: number;
     status?: string;
@@ -108,3 +129,5 @@ declare namespace API {
     type?: NoticeIconItemType;
   };
 }
+
+

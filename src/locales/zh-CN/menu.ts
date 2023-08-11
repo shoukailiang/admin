@@ -51,4 +51,6 @@ export default {
   'menu.editor.koni': '拓扑编辑器',
   // 员工管理
   'menu.staff': '员工管理',
+  // 类别管理
+  'menu.category': '类别管理',
 };
