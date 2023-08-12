@@ -1,4 +1,4 @@
-import { addCategoryDish, removeRule, category, updateCategory } from '@/services/ant-design-pro/api';
+import { addCategoryDish, removeCategory, category, updateCategory } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -6,7 +6,6 @@ import {
   ModalForm,
   PageContainer,
   ProDescriptions,
-  ProFormRadio,
   ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
@@ -15,16 +14,47 @@ import { Button, Drawer, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
+// TODO
+// code ===0 的时候，是错误，可以放在拦截器中处理
 
 /**
  * @en-US Add node
- * @zh-CN 添加类别
+ * @zh-CN 添加菜品类别
  * @param fields
  */
-const handleAdd = async (fields: API.CategoryListItem) => {
+const handleAddDish = async (fields: API.CategoryListItem) => {
+  console.log(fields)
   const hide = message.loading('正在添加');
   try {
-    await addCategoryDish({ ...fields });
+    await addCategoryDish({
+      name:fields.name,
+      sort:fields.sort,
+      type:1
+    });
+    hide();
+    message.success('Added successfully');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('Adding failed, please try again!');
+    return false;
+  }
+};
+
+/**
+ * @en-US Add node
+ * @zh-CN 添加菜品类别
+ * @param fields
+ */
+const handleAddPackage = async (fields: API.CategoryListItem) => {
+  console.log(fields)
+  const hide = message.loading('正在添加');
+  try {
+    await addCategoryDish({
+      name:fields.name,
+      sort:fields.sort,
+      type:2
+    });
     hide();
     message.success('Added successfully');
     return true;
@@ -66,7 +96,7 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
-    await removeRule({
+    await removeCategory({
       id: selectedRows.map((row) => row.id),
     });
     hide();
@@ -80,17 +110,19 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
 };
 
 
-// disable or enable user
 const DeleteCategory = async (fields:API.CategoryListItem)=>{
   const hide = message.loading('Configuring');
+  let res = null;
   try {
-    await updateUser({
+    res = await removeCategory({
       id: fields.id,
-      status: fields.status===0?1:0,
     });
     hide();
+    // res.code ===0 是错误
+    if(res.code ===0){
+      message.error(res.msg);
+    }
 
-    message.success('Configuration is successful');
     return true;
   } catch (error) {
     hide();
@@ -105,6 +137,7 @@ const CategoryList: React.FC = () => {
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+  const [categoryType, setCategoryType] = useState<number>(1);// 1 菜品分类 2 套餐分类
   /**
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 更新窗口的弹窗
@@ -194,9 +227,9 @@ const CategoryList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.EmployeeListItem, API.PageParams>
+      <ProTable<API.CategoryListItem, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.employeeManagement.title',
+          id: 'pages.categoryManagement.title',
           defaultMessage: 'Enquiry form',
         })}
         actionRef={actionRef}
@@ -205,15 +238,27 @@ const CategoryList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          // 新建的
+          // 新建菜品分类
           <Button
             type="primary"
             key="primary"
             onClick={() => {
+              setCategoryType(1);
               handleModalOpen(true);
             }}
           >
-            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
+            <PlusOutlined /> <FormattedMessage id="pages.categoryManagement.addCategory" defaultMessage="New" />
+          </Button>,
+          // 新增套餐分类
+          <Button
+            type="primary"
+            key="primary"
+            onClick={() => {
+              setCategoryType(2);
+              handleModalOpen(true);
+            }}
+          >
+            <PlusOutlined /> <FormattedMessage id="pages.categoryManagement.addCategorySet" defaultMessage="New" />
           </Button>,
         ]}
         request={category}
@@ -263,48 +308,41 @@ const CategoryList: React.FC = () => {
         </FooterToolbar>
       )}
       <ModalForm
-        title={intl.formatMessage({
-          id: 'pages.user.addUser',
-          defaultMessage: 'New user',
-        })}
+        // categoryType===1 菜品分类
+        // categoryType===2 套餐分类
+        title={categoryType===1?'新增菜品分类':'新增套餐分类'}
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          const success = await handleAdd(value as API.EmployeeListItem);
-          if (success) {
-            handleModalOpen(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
+          if(categoryType===1){
+            const success = await handleAddDish(value as API.CategoryListItem);
+            if (success) {
+              handleModalOpen(false);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
+            }
+          }else{
+            const success = await handleAddPackage(value as API.CategoryListItem);
+            if (success) {
+              handleModalOpen(false);
+              if (actionRef.current) {
+                actionRef.current.reload();
+              }
             }
           }
-        }}
+       }}
       >
         <ProFormText
-        label="员工账号"
+        label="分类名称"
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.employeeManagement.employeeAccount"
-                  defaultMessage="username is required"
-                />
-              ),
-            },
-          ]}
-          width="md"
-          name="username"
-        />
-          <ProFormText
-          label="员工姓名"
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.employeeManagement.employeeName"
-                  defaultMessage="name is required"
+                  id="pages.categoryManagement.categoryName"
+                  defaultMessage="categoryName is required"
                 />
               ),
             },
@@ -313,53 +351,23 @@ const CategoryList: React.FC = () => {
           name="name"
         />
         <ProFormText
-          label="手机号"
+          label="排序"
           rules={[
             {
               required: true,
               message: (
                 <FormattedMessage
-                  id="pages.employeeManagement.employeePhone"
-                  defaultMessage="phone is required"
+                  id="pages.categoryManagement.sort"
+                  defaultMessage="sort is required"
                 />
               ),
             },
           ]}
           width="md"
-          name="phone"
-        />
-        <ProFormRadio.Group
-            name="sex"
-            rules={[
-              {
-                required: true,
-                message: '性别不能为空',
-              },
-            ]}
-            label="性别"
-            options={[
-              {
-                label: '女',
-                value: '0',
-              },
-              {
-                label: '男',
-                value: '1',
-              },
-            ]}
-          />
-          <ProFormText
-          label="身份证"
-          rules={[
-            {
-              required: true,
-              message: "身份证号码不能为空",
-            },
-          ]}
-          width="md"
-          name="idNumber"
+          name="sort"
         />
       </ModalForm>
+
       <UpdateForm
         onSubmit={async (value) => {
           const success = await handleUpdate(value);

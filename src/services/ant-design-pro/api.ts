@@ -138,8 +138,16 @@ export async function category(
 }
 
 // 新增分类
-export async function addCategoryDish(){
-
+export async function addCategoryDish(body:API.CategoryListItem,options?: { [key: string]: any }){
+  return request<API.CategoryListItem>('/api/category', {
+    method: 'POST',
+    data: {
+      name:body.name,
+      sort:body.sort,
+      type:body.type,
+    },
+    ...(options || {}),
+  });
 }
 
 // 编辑分类
@@ -147,6 +155,13 @@ export async function updateCategory(body:API.CategoryListItem, options?: { [key
   return request<any>('/api/category', {
     method: 'PUT',
     data: body,
+    ...(options || {}),
+  });
+}
+// 删除分类
+export async function removeCategory(options?: { [key: string]: any}) {
+  return request<Record<string, any>>('/api/category', {
+    method: 'DELETE',
     ...(options || {}),
   });
 }

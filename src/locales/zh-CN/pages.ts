@@ -84,6 +84,8 @@ export default {
   'pages.employeeManagement.enable': '启用',
   // 新建用户
   'pages.user.addUser': '新增用户',
+  // 分类管理
+  'pages.categoryManagement.title': '分类管理',
   // 分类名称
   'pages.categoryManagement.categoryName': '分类名称',
   // 分类类型
@@ -96,4 +98,8 @@ export default {
   'pages.categoryManagement.edit': '编辑',
   // 删除
   'pages.categoryManagement.delete': '删除',
+  // 新增菜品分类
+  'pages.categoryManagement.addCategory': '新增菜品分类',
+  // 新增套餐分类
+  'pages.categoryManagement.addCategorySet': '新增套餐分类',
 };
