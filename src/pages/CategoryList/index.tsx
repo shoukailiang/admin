@@ -14,9 +14,6 @@ import { Button, Drawer, message } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-// TODO
-// code ===0 的时候，是错误，可以放在拦截器中处理
-
 /**
  * @en-US Add node
  * @zh-CN 添加菜品类别
@@ -112,16 +109,11 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
 
 const DeleteCategory = async (fields:API.CategoryListItem)=>{
   const hide = message.loading('Configuring');
-  let res = null;
   try {
-    res = await removeCategory({
+    await removeCategory({
       id: fields.id,
     });
     hide();
-    // res.code ===0 是错误
-    if(res.code ===0){
-      message.error(res.msg);
-    }
 
     return true;
   } catch (error) {
@@ -332,7 +324,7 @@ const CategoryList: React.FC = () => {
               }
             }
           }
-       }}
+      }}
       >
         <ProFormText
         label="分类名称"
