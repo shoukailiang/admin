@@ -58,6 +58,12 @@ export default [
     component: './CategoryList',
   },
   {
+    name: 'dish',
+    icon: 'table',
+    path: '/dish',
+    component: './DishList',
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

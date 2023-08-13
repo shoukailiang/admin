@@ -85,6 +85,31 @@ declare namespace API {
     updateUser?: string;
   }
 
+  // DishList
+  type DishList ={
+    records?: DishListItem[];
+    /** 列表的内容总数 */
+    total?: number;
+    searchCount?: boolean;
+  }
+
+  type DishListItem = {
+    id?: string;
+    categoryId?:string;
+    categoryName?:string;
+    code?:string;
+    createTime?: string;
+    createUser?: string;
+    description?: string;
+    name?: string;
+    price?: number;
+    status?: number;
+    updateTime?: string;
+    updateUser?: string;
+    sort?:number;
+  }
+
+
 
   type FakeCaptcha = {
     code?: number;

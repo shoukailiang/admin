@@ -1,4 +1,4 @@
-import { addCategoryDish, removeCategory, category, updateCategory } from '@/services/ant-design-pro/api';
+import { addDish, dish, removeDish, updateDish } from '@/services/ant-design-pro/api';
 import { PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
@@ -10,7 +10,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Drawer, Modal, message } from 'antd';
+import { Button, Drawer, Image, message, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
@@ -20,37 +20,12 @@ import UpdateForm from './components/UpdateForm';
  * @param fields
  */
 const handleAddDish = async (fields: API.CategoryListItem) => {
-  console.log(fields)
+  console.log(fields);
   const hide = message.loading('正在添加');
   try {
-    await addCategoryDish({
-      name:fields.name,
-      sort:fields.sort,
-      type:1
-    });
-    hide();
-    message.success('Added successfully');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Adding failed, please try again!');
-    return false;
-  }
-};
-
-/**
- * @en-US Add node
- * @zh-CN 添加菜品类别
- * @param fields
- */
-const handleAddPackage = async (fields: API.CategoryListItem) => {
-  console.log(fields)
-  const hide = message.loading('正在添加');
-  try {
-    await addCategoryDish({
-      name:fields.name,
-      sort:fields.sort,
-      type:2
+    await addDish({
+      name: fields.name,
+      sort: fields.sort,
     });
     hide();
     message.success('Added successfully');
@@ -71,7 +46,7 @@ const handleAddPackage = async (fields: API.CategoryListItem) => {
 const handleUpdate = async (fields: FormValueType) => {
   const hide = message.loading('Configuring');
   try {
-    await updateCategory({...fields});
+    await updateDish({ ...fields });
     hide();
 
     message.success('Configuration is successful');
@@ -93,7 +68,7 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
-    await removeCategory({
+    await removeDish({
       id: selectedRows.map((row) => row.id),
     });
     hide();
@@ -106,11 +81,10 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
   }
 };
 
-
-const DeleteCategory = async (fields:API.CategoryListItem)=>{
+const DeleteCategory = async (fields: API.CategoryListItem) => {
   const hide = message.loading('Configuring');
   try {
-    await removeCategory({
+    await removeDish({
       id: fields.id,
     });
     hide();
@@ -121,16 +95,15 @@ const DeleteCategory = async (fields:API.CategoryListItem)=>{
     message.error('Configuration failed, please try again!');
     return false;
   }
-}
+};
 
-
-const CategoryList: React.FC = () => {
+const DishList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  const [categoryType, setCategoryType] = useState<number>(1);// 1 菜品分类 2 套餐分类
+  const [categoryType, setCategoryType] = useState<number>(1); // 1 菜品分类 2 套餐分类
   /**
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 更新窗口的弹窗
@@ -149,7 +122,7 @@ const CategoryList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  const [record,setRecord] = useState<API.CategoryListItem>({})
+  const [record, setRecord] = useState<API.CategoryListItem>({});
 
   // 模态框
   const [open, setOpen] = useState(false);
@@ -175,18 +148,11 @@ const CategoryList: React.FC = () => {
     setRecord({});
   };
 
-
-
   const columns: ProColumns<API.EmployeeListItem>[] = [
     {
-      title: (
-        <FormattedMessage
-          id="pages.categoryManagement.categoryName"
-          defaultMessage="Rule name"
-        />
-      ),
+      title: <FormattedMessage id="pages.dishManagement.dishName" defaultMessage="dishName" />,
       dataIndex: 'name',
-      tip: '分类名称',
+      tip: '菜品名称',
       render: (dom, entity) => {
         return (
           <a
@@ -201,24 +167,43 @@ const CategoryList: React.FC = () => {
       },
     },
     {
-      title: <FormattedMessage id="pages.categoryManagement.categoryType" defaultMessage="Description" />,
-      dataIndex: 'type',
-      // ==1 现实菜品分类，==2显示套餐分类
-      renderText: (val) => val===1?'菜品分类':'套餐分类',
+      // 图片
+      title: <FormattedMessage id="pages.dishManagement.dishImage" defaultMessage="菜品图片" />,
+      dataIndex: 'image',
+      // img src 拼接上http://162.14.124.240:8080/common/download?name=，然后大小小一点
+      renderText: (val: string) => (
+        <Image src={'http://162.14.124.240:8080/common/download?name=' + val} width={100} />
+      ),
     },
     {
+      title: <FormattedMessage id="pages.dishManagement.dishCategory" defaultMessage="菜品分类" />,
+      dataIndex: 'categoryName',
+    },
+    {
+      title: <FormattedMessage id="pages.dishManagement.dishPrice" defaultMessage="菜品价格" />,
+      dataIndex: 'price',
+      // 价格除以100，前面加上人民币符号
+      renderText: (val: number) => `￥${val / 100}`,
+    },
+    {
+      // 售卖状态
+      title: <FormattedMessage id="pages.dishManagement.dishStatus" defaultMessage="售卖状态" />,
+      dataIndex: 'status',
+      // 1是起售 2是停售，不用国际化
+      valueEnum: {
+        1: { text: '起售', status: 'Success' },
+        0: { text: '停售', status: 'Error' },
+      },
+    },
+    {
+      // 最后操作时间
       title: (
         <FormattedMessage
-          id="pages.categoryManagement.operationTime"
-          defaultMessage="pages.categoryManagement.operationTime"
+          id="pages.dishManagement.lastOperationTime"
+          defaultMessage="最后操作时间"
         />
       ),
       dataIndex: 'updateTime',
-    },
-    {
-      title: <FormattedMessage id="pages.categoryManagement.sort" defaultMessage="sort" />,
-      dataIndex: 'sort',
-      hideInForm: true,
     },
     {
       title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="Operating" />,
@@ -232,36 +217,37 @@ const CategoryList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          <FormattedMessage id="pages.categoryManagement.edit" defaultMessage="edit" />
+          {/* 修改 */}
+          <FormattedMessage id="pages.dishManagement.edit" defaultMessage="update" />
         </a>,
-        <a key="" style={{color:'red'}}
-        onClick={()=>{
-          showModal();
-          setRecord(record);
-        }}
-        // onClick={()=>{
-        //   DeleteCategory(record);
-        //   if(actionRef.current){
-        //     actionRef.current.reload();
-        //   }
-        // }}
+        <a
+          key="config"
+          onClick={() => {
+            handleUpdateModalOpen(true);
+            setCurrentRow(record);
+          }}
+        >
+          {/* 停售*/}
+          <FormattedMessage id="pages.dishManagement.stopSelling" defaultMessage="update" />
+        </a>,
+        <a
+          key=""
+          style={{ color: 'red' }}
+          onClick={() => {
+            showModal();
+            setRecord(record);
+          }}
         >
           <FormattedMessage id="pages.categoryManagement.delete" defaultMessage="delete" />
         </a>,
       ],
     },
   ];
-
-
-
-
-
-
   return (
     <PageContainer>
-      <ProTable<API.CategoryListItem, API.PageParams>
+      <ProTable<API.DishListItem, API.PageParams>
         headerTitle={intl.formatMessage({
-          id: 'pages.categoryManagement.title',
+          id: 'pages.dishManagement.title',
           defaultMessage: 'Enquiry form',
         })}
         actionRef={actionRef}
@@ -270,30 +256,23 @@ const CategoryList: React.FC = () => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          // 新建菜品分类
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCategoryType(1);
-              handleModalOpen(true);
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.categoryManagement.addCategory" defaultMessage="New" />
+          <Button type="primary" key="primary" onClick={() => {}}>
+            <PlusOutlined />{' '}
+            <FormattedMessage id="pages.dishManagement.batchDelete" defaultMessage="New" />
           </Button>,
-          // 新增套餐分类
-          <Button
-            type="primary"
-            key="primary"
-            onClick={() => {
-              setCategoryType(2);
-              handleModalOpen(true);
-            }}
-          >
-            <PlusOutlined /> <FormattedMessage id="pages.categoryManagement.addCategorySet" defaultMessage="New" />
+          <Button type="primary" key="primary" onClick={() => {}}>
+            <PlusOutlined />{' '}
+            <FormattedMessage id="pages.dishManagement.batchShelf" defaultMessage="New" />
+          </Button>,
+          <Button type="primary" key="primary" onClick={() => {}}>
+            <PlusOutlined />{' '}
+            <FormattedMessage id="pages.dishManagement.batchShelf" defaultMessage="New" />
+          </Button>,
+          <Button type="primary" key="primary" onClick={() => {}}>
+            新建菜品
           </Button>,
         ]}
-        request={category}
+        request={dish}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
@@ -342,12 +321,12 @@ const CategoryList: React.FC = () => {
       <ModalForm
         // categoryType===1 菜品分类
         // categoryType===2 套餐分类
-        title={categoryType===1?'新增菜品分类':'新增套餐分类'}
+        title={categoryType === 1 ? '新增菜品分类' : '新增套餐分类'}
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async (value) => {
-          if(categoryType===1){
+          if (categoryType === 1) {
             const success = await handleAddDish(value as API.CategoryListItem);
             if (success) {
               handleModalOpen(false);
@@ -355,7 +334,7 @@ const CategoryList: React.FC = () => {
                 actionRef.current.reload();
               }
             }
-          }else{
+          } else {
             const success = await handleAddPackage(value as API.CategoryListItem);
             if (success) {
               handleModalOpen(false);
@@ -364,10 +343,10 @@ const CategoryList: React.FC = () => {
               }
             }
           }
-      }}
+        }}
       >
         <ProFormText
-        label="分类名称"
+          label="分类名称"
           rules={[
             {
               required: true,
@@ -458,4 +437,4 @@ const CategoryList: React.FC = () => {
   );
 };
 
-export default CategoryList;
+export default DishList;

@@ -53,4 +53,8 @@ export default {
   'menu.staff': '员工管理',
   // 类别管理
   'menu.category': '类别管理',
+  // 菜品管理
+  'menu.dish': '菜品管理',
+  // 套餐管理
+  'menu.setmeal': '套餐管理',
 };

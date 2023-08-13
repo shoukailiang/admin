@@ -102,4 +102,30 @@ export default {
   'pages.categoryManagement.addCategory': '新增菜品分类',
   // 新增套餐分类
   'pages.categoryManagement.addCategorySet': '新增套餐分类',
+  // 菜品管理
+  'pages.dishManagement.title': '菜品管理',
+  // 菜品名称
+  'pages.dishManagement.dishName': '菜品名称',
+  // 菜品分类
+  'pages.dishManagement.dishCategory': '菜品分类',
+  // 售价
+  'pages.dishManagement.price': '售价',
+  // 售卖状态
+  'pages.dishManagement.saleStatus': '售卖状态',
+  // 最后操作时间
+  'pages.dishManagement.lastOperationTime': '最后操作时间',
+  // 修改
+  'pages.dishManagement.edit': '修改',
+  // 停售
+  'pages.dishManagement.stopSelling': '停售',
+  // 上架
+  'pages.dishManagement.shelf': '上架',
+  // 删除
+  'pages.dishManagement.delete': '删除',
+  // 批量删除
+  'pages.dishManagement.batchDelete': '批量删除',
+  // 批量停售
+  'pages.dishManagement.batchStopSelling': '批量停售',
+  // 批量起售
+  'pages.dishManagement.batchShelf': '批量起售',
 };

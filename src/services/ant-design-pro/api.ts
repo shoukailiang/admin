@@ -165,3 +165,61 @@ export async function removeCategory(options?: { [key: string]: any}) {
     ...(options || {}),
   });
 }
+
+
+// 菜品管理
+export async function dish(
+  params: {
+    // query
+    /** 当前的页码 */
+    current?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  let res:any = await request<API.DishList>('/api/dish/page', {
+    method: 'GET',
+    params: {
+      ...params,
+      // 后端是page，所以多了这一步，antdesignpro是current
+      page: params.current,
+      pageSize: params.pageSize,
+    },
+    ...(options || {}),
+  });
+  // 这里也是为了匹配前端antdesign的格式，离谱
+  const frontendData = {
+    ...res.data,
+    data: res.data.records, // 将 records 映射到 data
+    success: res.data.searchCount, // 将 searchCount 映射到 success
+  };
+  return frontendData;
+}
+
+export async function addDish(body:API.DishListItem,options?: { [key: string]: any }){
+  return request<API.CategoryListItem>('/api/dish', {
+    method: 'POST',
+    data: {
+      name:body.name,
+      sort:body.sort,
+    },
+    ...(options || {}),
+  });
+}
+
+// 编辑分类
+export async function updateDish(body:API.DishListItem, options?: { [key: string]: any }) {
+  return request<any>('/api/category', {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}
+// 删除分类
+export async function removeDish(options?: { [key: string]: any}) {
+  return request<Record<string, any>>('/api/dish', {
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
