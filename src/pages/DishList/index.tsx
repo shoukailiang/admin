@@ -1,5 +1,4 @@
-import { addDish, dish, removeDish, updateDish } from '@/services/ant-design-pro/api';
-import { PlusOutlined } from '@ant-design/icons';
+import { addDish, dish, removeDish, updateDish, updateDishStatusBatch } from '@/services/ant-design-pro/api';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
   FooterToolbar,
@@ -16,10 +15,10 @@ import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 /**
  * @en-US Add node
- * @zh-CN 添加菜品类别
+ * @zh-CN 添加菜品
  * @param fields
  */
-const handleAddDish = async (fields: API.CategoryListItem) => {
+const handleAddDish = async (fields: API.DishListItem) => {
   console.log(fields);
   const hide = message.loading('正在添加');
   try {
@@ -37,16 +36,20 @@ const handleAddDish = async (fields: API.CategoryListItem) => {
   }
 };
 
+
+
 /**
  * @en-US Update node
- * @zh-CN 更新类别
+ * @zh-CN 更新dish
  *
  * @param fields
  */
 const handleUpdate = async (fields: FormValueType) => {
   const hide = message.loading('Configuring');
   try {
-    await updateDish({ ...fields });
+    await updateDish({
+      ...fields,
+    });
     hide();
 
     message.success('Configuration is successful');
@@ -60,16 +63,16 @@ const handleUpdate = async (fields: FormValueType) => {
 
 /**
  *  Delete node
- * @zh-CN 删除类别
+ * @zh-CN 批量删除菜品
  *
  * @param selectedRows
  */
-const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
+const handleRemoveBatch = async (selectedRows: API.DishListItem[]) => {
   const hide = message.loading('正在删除');
   if (!selectedRows) return true;
   try {
     await removeDish({
-      id: selectedRows.map((row) => row.id),
+      ids: selectedRows.map((row) => row.id),
     });
     hide();
     message.success('Deleted successfully and will refresh soon');
@@ -81,11 +84,11 @@ const handleRemove = async (selectedRows: API.CategoryListItem[]) => {
   }
 };
 
-const DeleteCategory = async (fields: API.CategoryListItem) => {
+const DeleteDish = async (fields: API.DishListItem) => {
   const hide = message.loading('Configuring');
   try {
     await removeDish({
-      id: fields.id,
+      ids: fields.id,
     });
     hide();
 
@@ -103,7 +106,6 @@ const DishList: React.FC = () => {
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
-  const [categoryType, setCategoryType] = useState<number>(1); // 1 菜品分类 2 套餐分类
   /**
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 更新窗口的弹窗
@@ -113,8 +115,8 @@ const DishList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
 
   const actionRef = useRef<ActionType>();
-  const [currentRow, setCurrentRow] = useState<API.CategoryListItem>();
-  const [selectedRowsState, setSelectedRows] = useState<API.CategoryListItem[]>([]);
+  const [currentRow, setCurrentRow] = useState<API.DishListItem>();
+  const [selectedRowsState, setSelectedRows] = useState<API.DishListItem[]>([]);
 
   /**
    * @en-US International configuration
@@ -122,12 +124,12 @@ const DishList: React.FC = () => {
    * */
   const intl = useIntl();
 
-  const [record, setRecord] = useState<API.CategoryListItem>({});
+  const [record, setRecord] = useState<API.DishListItem>({});
 
   // 模态框
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState('你确定删除分类吗？');
+  const [modalText, setModalText] = useState('你确定删除该菜品吗？');
 
   const showModal = () => {
     setOpen(true);
@@ -136,7 +138,7 @@ const DishList: React.FC = () => {
   const handleOk = () => {
     setModalText('你确定删除分类吗？');
     // setConfirmLoading(true);
-    DeleteCategory(record);
+    DeleteDish(record);
     setRecord({});
     setOpen(false);
     // setConfirmLoading(false);
@@ -148,7 +150,53 @@ const DishList: React.FC = () => {
     setRecord({});
   };
 
-  const columns: ProColumns<API.EmployeeListItem>[] = [
+
+  /**
+ * @en-US Update node
+ * @zh-CN 更新dish状态
+ */
+const handleUpdateStatus = async (fields: API.DishListItem ) => {
+  const hide = message.loading('Configuring');
+  try {
+    await updateDish({
+      id: fields.id,
+      status: fields.status === 1 ? 0: 1,
+    });
+    hide();
+
+    message.success('Configuration is successful');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('Configuration failed, please try again!');
+    return false;
+  }
+};
+
+  /**
+ * @en-US Update node
+ * @zh-CN 批量dish状态
+ */
+  const handleUpdateStatusBatch = async (selectedRows: API.DishListItem[],type ) => {
+    const hide = message.loading('Configuring');
+    try {
+      await updateDishStatusBatch({
+        ids: selectedRows.map((row) => row.id),
+      },type);
+      hide();
+
+      message.success('Configuration is successful');
+      return true;
+    } catch (error) {
+      hide();
+      message.error('Configuration failed, please try again!');
+      return false;
+    }
+  };
+
+
+
+  const columns: ProColumns<API.DishListItem>[] = [
     {
       title: <FormattedMessage id="pages.dishManagement.dishName" defaultMessage="dishName" />,
       dataIndex: 'name',
@@ -168,7 +216,7 @@ const DishList: React.FC = () => {
     },
     {
       // 图片
-      title: <FormattedMessage id="pages.dishManagement.dishImage" defaultMessage="菜品图片" />,
+      title: '菜品图片',
       dataIndex: 'image',
       // img src 拼接上http://162.14.124.240:8080/common/download?name=，然后大小小一点
       renderText: (val: string) => (
@@ -176,18 +224,18 @@ const DishList: React.FC = () => {
       ),
     },
     {
-      title: <FormattedMessage id="pages.dishManagement.dishCategory" defaultMessage="菜品分类" />,
+      title: '菜品分类',
       dataIndex: 'categoryName',
     },
     {
-      title: <FormattedMessage id="pages.dishManagement.dishPrice" defaultMessage="菜品价格" />,
+      title: '菜品价格',
       dataIndex: 'price',
       // 价格除以100，前面加上人民币符号
       renderText: (val: number) => `￥${val / 100}`,
     },
     {
       // 售卖状态
-      title: <FormattedMessage id="pages.dishManagement.dishStatus" defaultMessage="售卖状态" />,
+      title: '售卖状态',
       dataIndex: 'status',
       // 1是起售 2是停售，不用国际化
       valueEnum: {
@@ -221,17 +269,16 @@ const DishList: React.FC = () => {
           <FormattedMessage id="pages.dishManagement.edit" defaultMessage="update" />
         </a>,
         <a
-          key="config"
+          key="modify"
           onClick={() => {
-            handleUpdateModalOpen(true);
+            handleModalOpen(true);
             setCurrentRow(record);
           }}
         >
-          {/* 停售*/}
-          <FormattedMessage id="pages.dishManagement.stopSelling" defaultMessage="update" />
+          {record.status === 0 ? ("起售") : ("停售")}
         </a>,
         <a
-          key=""
+          key="delete"
           style={{ color: 'red' }}
           onClick={() => {
             showModal();
@@ -257,18 +304,6 @@ const DishList: React.FC = () => {
         }}
         toolBarRender={() => [
           <Button type="primary" key="primary" onClick={() => {}}>
-            <PlusOutlined />{' '}
-            <FormattedMessage id="pages.dishManagement.batchDelete" defaultMessage="New" />
-          </Button>,
-          <Button type="primary" key="primary" onClick={() => {}}>
-            <PlusOutlined />{' '}
-            <FormattedMessage id="pages.dishManagement.batchShelf" defaultMessage="New" />
-          </Button>,
-          <Button type="primary" key="primary" onClick={() => {}}>
-            <PlusOutlined />{' '}
-            <FormattedMessage id="pages.dishManagement.batchShelf" defaultMessage="New" />
-          </Button>,
-          <Button type="primary" key="primary" onClick={() => {}}>
             新建菜品
           </Button>,
         ]}
@@ -287,20 +322,12 @@ const DishList: React.FC = () => {
               <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen" />{' '}
               <a style={{ fontWeight: 600 }}>{selectedRowsState.length}</a>{' '}
               <FormattedMessage id="pages.searchTable.item" defaultMessage="项" />
-              &nbsp;&nbsp;
-              <span>
-                <FormattedMessage
-                  id="pages.searchTable.totalServiceCalls"
-                  defaultMessage="Total number of service calls"
-                />{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万" />
-              </span>
             </div>
           }
         >
           <Button
             onClick={async () => {
-              await handleRemove(selectedRowsState);
+              await handleRemoveBatch(selectedRowsState);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -310,73 +337,33 @@ const DishList: React.FC = () => {
               defaultMessage="Batch deletion"
             />
           </Button>
-          <Button type="primary">
-            <FormattedMessage
-              id="pages.searchTable.batchApproval"
-              defaultMessage="Batch approval"
-            />
-          </Button>
+          <Button type="primary" onClick={async () => {
+              await handleUpdateStatusBatch(selectedRowsState,1);
+              setSelectedRows([]);
+              actionRef.current?.reloadAndRest?.();
+            }}>批量启用</Button>
+          <Button type="primary" onClick={async () => {
+              await handleUpdateStatusBatch(selectedRowsState,0);
+              setSelectedRows([]);
+              actionRef.current?.reloadAndRest?.();
+            }}>批量停售</Button>
         </FooterToolbar>
       )}
       <ModalForm
-        // categoryType===1 菜品分类
-        // categoryType===2 套餐分类
-        title={categoryType === 1 ? '新增菜品分类' : '新增套餐分类'}
+        title={"确定改变状态吗"}
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
-        onFinish={async (value) => {
-          if (categoryType === 1) {
-            const success = await handleAddDish(value as API.CategoryListItem);
-            if (success) {
-              handleModalOpen(false);
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
-          } else {
-            const success = await handleAddPackage(value as API.CategoryListItem);
-            if (success) {
-              handleModalOpen(false);
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
+        onFinish={async () => {
+          const success = await handleUpdateStatus(currentRow||{});
+          if (success) {
+            handleModalOpen(false);
+            if (actionRef.current) {
+              actionRef.current.reload();
             }
           }
         }}
       >
-        <ProFormText
-          label="分类名称"
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.categoryManagement.categoryName"
-                  defaultMessage="categoryName is required"
-                />
-              ),
-            },
-          ]}
-          width="md"
-          name="name"
-        />
-        <ProFormText
-          label="排序"
-          rules={[
-            {
-              required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.categoryManagement.sort"
-                  defaultMessage="sort is required"
-                />
-              ),
-            },
-          ]}
-          width="md"
-          name="sort"
-        />
       </ModalForm>
 
       <UpdateForm
@@ -410,7 +397,7 @@ const DishList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<API.EmployeeListItem>
+          <ProDescriptions<API.DishListItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -419,7 +406,7 @@ const DishList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<API.EmployeeListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.DishListItem>[]}
           />
         )}
       </Drawer>

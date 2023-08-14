@@ -1,6 +1,7 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
+import { type } from '../../.umi/exports';
 
 
 
@@ -210,7 +211,7 @@ export async function addDish(body:API.DishListItem,options?: { [key: string]: a
 
 // 编辑分类
 export async function updateDish(body:API.DishListItem, options?: { [key: string]: any }) {
-  return request<any>('/api/category', {
+  return request<any>('/api/dish', {
     method: 'PUT',
     data: body,
     ...(options || {}),
@@ -218,8 +219,18 @@ export async function updateDish(body:API.DishListItem, options?: { [key: string
 }
 // 删除分类
 export async function removeDish(options?: { [key: string]: any}) {
-  return request<Record<string, any>>('/api/dish', {
+  const queryParams = new URLSearchParams(options).toString();
+  const url = `/api/dish?${queryParams}`;
+  return request<Record<string, any>>(url, {
     method: 'DELETE',
-    ...(options || {}),
+  });
+}
+
+
+export async function updateDishStatusBatch(options?: { [key: string]: any},type?:number) {
+  const queryParams = new URLSearchParams(options).toString();
+  const url = `/api/dish/status/${type}?${queryParams}`;
+  return request<any>(url, {
+    method: 'POST',
   });
 }

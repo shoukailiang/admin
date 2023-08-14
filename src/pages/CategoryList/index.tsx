@@ -177,7 +177,7 @@ const CategoryList: React.FC = () => {
 
 
 
-  const columns: ProColumns<API.EmployeeListItem>[] = [
+  const columns: ProColumns<API.CategoryListItem>[] = [
     {
       title: (
         <FormattedMessage
@@ -431,7 +431,7 @@ const CategoryList: React.FC = () => {
         closable={false}
       >
         {currentRow?.name && (
-          <ProDescriptions<API.EmployeeListItem>
+          <ProDescriptions<API.CategoryListItem>
             column={2}
             title={currentRow?.name}
             request={async () => ({
@@ -440,7 +440,7 @@ const CategoryList: React.FC = () => {
             params={{
               id: currentRow?.name,
             }}
-            columns={columns as ProDescriptionsItemProps<API.EmployeeListItem>[]}
+            columns={columns as ProDescriptionsItemProps<API.CategoryListItem>[]}
           />
         )}
       </Drawer>
