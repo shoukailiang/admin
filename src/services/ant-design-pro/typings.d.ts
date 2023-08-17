@@ -107,6 +107,10 @@ declare namespace API {
     updateTime?: string;
     updateUser?: string;
     sort?:number;
+    code?:string;
+    image?:string;
+    flavors?:string[];
+    copies?:any;
   }
 
 

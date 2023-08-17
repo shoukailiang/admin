@@ -1,42 +1,22 @@
-import { addDish, dish, removeDish, updateDish, updateDishStatusBatch } from '@/services/ant-design-pro/api';
+import {
+  dish,
+  removeDish,
+  updateDish,
+  updateDishStatusBatch,
+} from '@/services/ant-design-pro/api';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
   FooterToolbar,
   ModalForm,
   PageContainer,
   ProDescriptions,
-  ProFormText,
   ProTable,
 } from '@ant-design/pro-components';
-import { FormattedMessage, useIntl } from '@umijs/max';
+import { FormattedMessage, useIntl, useNavigate } from '@umijs/max';
 import { Button, Drawer, Image, message, Modal } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
-/**
- * @en-US Add node
- * @zh-CN 添加菜品
- * @param fields
- */
-const handleAddDish = async (fields: API.DishListItem) => {
-  console.log(fields);
-  const hide = message.loading('正在添加');
-  try {
-    await addDish({
-      name: fields.name,
-      sort: fields.sort,
-    });
-    hide();
-    message.success('Added successfully');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Adding failed, please try again!');
-    return false;
-  }
-};
-
-
 
 /**
  * @en-US Update node
@@ -101,11 +81,13 @@ const DeleteDish = async (fields: API.DishListItem) => {
 };
 
 const DishList: React.FC = () => {
+  const nav = useNavigate();
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
    *  */
   const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+
   /**
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 更新窗口的弹窗
@@ -139,6 +121,7 @@ const DishList: React.FC = () => {
     setModalText('你确定删除分类吗？');
     // setConfirmLoading(true);
     DeleteDish(record);
+    actionRef.current?.reloadAndRest?.();
     setRecord({});
     setOpen(false);
     // setConfirmLoading(false);
@@ -150,39 +133,17 @@ const DishList: React.FC = () => {
     setRecord({});
   };
 
-
   /**
- * @en-US Update node
- * @zh-CN 更新dish状态
- */
-const handleUpdateStatus = async (fields: API.DishListItem ) => {
-  const hide = message.loading('Configuring');
-  try {
-    await updateDish({
-      id: fields.id,
-      status: fields.status === 1 ? 0: 1,
-    });
-    hide();
-
-    message.success('Configuration is successful');
-    return true;
-  } catch (error) {
-    hide();
-    message.error('Configuration failed, please try again!');
-    return false;
-  }
-};
-
-  /**
- * @en-US Update node
- * @zh-CN 批量dish状态
- */
-  const handleUpdateStatusBatch = async (selectedRows: API.DishListItem[],type ) => {
+   * @en-US Update node
+   * @zh-CN 更新dish状态
+   */
+  const handleUpdateStatus = async (fields: API.DishListItem) => {
     const hide = message.loading('Configuring');
     try {
-      await updateDishStatusBatch({
-        ids: selectedRows.map((row) => row.id),
-      },type);
+      await updateDish({
+        id: fields.id,
+        status: fields.status === 1 ? 0 : 1,
+      });
       hide();
 
       message.success('Configuration is successful');
@@ -194,6 +155,29 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
     }
   };
 
+  /**
+   * @en-US Update node
+   * @zh-CN 批量dish状态
+   */
+  const handleUpdateStatusBatch = async (selectedRows: API.DishListItem[], type: number) => {
+    const hide = message.loading('Configuring');
+    try {
+      await updateDishStatusBatch(
+        {
+          ids: selectedRows.map((row) => row.id),
+        },
+        type,
+      );
+      hide();
+
+      message.success('Configuration is successful');
+      return true;
+    } catch (error) {
+      hide();
+      message.error('Configuration failed, please try again!');
+      return false;
+    }
+  };
 
 
   const columns: ProColumns<API.DishListItem>[] = [
@@ -261,8 +245,9 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
         <a
           key="config"
           onClick={() => {
-            handleUpdateModalOpen(true);
-            setCurrentRow(record);
+            nav(`/dish/add/${record.id}`)
+            // handleUpdateModalOpen(true);
+            // setCurrentRow(record);
           }}
         >
           {/* 修改 */}
@@ -275,7 +260,7 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
             setCurrentRow(record);
           }}
         >
-          {record.status === 0 ? ("起售") : ("停售")}
+          {record.status === 0 ? '起售' : '停售'}
         </a>,
         <a
           key="delete"
@@ -290,6 +275,7 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
       ],
     },
   ];
+
   return (
     <PageContainer>
       <ProTable<API.DishListItem, API.PageParams>
@@ -303,7 +289,13 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
           labelWidth: 120,
         }}
         toolBarRender={() => [
-          <Button type="primary" key="primary" onClick={() => {}}>
+          <Button
+            type="primary"
+            key="primary"
+            onClick={() => {
+              nav("/dish/add/new")
+            }}
+          >
             新建菜品
           </Button>,
         ]}
@@ -337,25 +329,35 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
               defaultMessage="Batch deletion"
             />
           </Button>
-          <Button type="primary" onClick={async () => {
-              await handleUpdateStatusBatch(selectedRowsState,1);
+          <Button
+            type="primary"
+            onClick={async () => {
+              await handleUpdateStatusBatch(selectedRowsState, 1);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
-            }}>批量启用</Button>
-          <Button type="primary" onClick={async () => {
-              await handleUpdateStatusBatch(selectedRowsState,0);
+            }}
+          >
+            批量启用
+          </Button>
+          <Button
+            type="primary"
+            onClick={async () => {
+              await handleUpdateStatusBatch(selectedRowsState, 0);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
-            }}>批量停售</Button>
+            }}
+          >
+            批量停售
+          </Button>
         </FooterToolbar>
       )}
       <ModalForm
-        title={"确定改变状态吗"}
+        title={'确定改变状态吗'}
         width="400px"
         open={createModalOpen}
         onOpenChange={handleModalOpen}
         onFinish={async () => {
-          const success = await handleUpdateStatus(currentRow||{});
+          const success = await handleUpdateStatus(currentRow || {});
           if (success) {
             handleModalOpen(false);
             if (actionRef.current) {
@@ -363,8 +365,8 @@ const handleUpdateStatus = async (fields: API.DishListItem ) => {
             }
           }
         }}
-      >
-      </ModalForm>
+      ></ModalForm>
+
 
       <UpdateForm
         onSubmit={async (value) => {

@@ -61,7 +61,18 @@ export default [
     name: 'dish',
     icon: 'table',
     path: '/dish',
-    component: './DishList',
+    routes : [
+      {
+        name: 'list',
+        path: '/dish/list',
+        component: './DishList',
+      },
+      {
+        name: 'add',
+        path: '/dish/add/:id',
+        component: './Dish',
+      }
+    ]
   },
   {
     path: '/',

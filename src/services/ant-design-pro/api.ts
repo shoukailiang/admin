@@ -1,7 +1,6 @@
 // @ts-ignore
 /* eslint-disable */
 import { request } from '@umijs/max';
-import { type } from '../../.umi/exports';
 
 
 
@@ -232,5 +231,62 @@ export async function updateDishStatusBatch(options?: { [key: string]: any},type
   const url = `/api/dish/status/${type}?${queryParams}`;
   return request<any>(url, {
     method: 'POST',
+  });
+}
+
+
+// 获取菜品分类
+export async function getCategoryList(options?: { [key: string]: any }) {
+  return request<any>('/api/category/list?type=1', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+
+// 新增菜品
+export async function addDishItem(body:API.DishListItem,options?: { [key: string]: any }){
+  return request<API.DishListItem>('/api/dish', {
+    method: 'POST',
+    data: {
+      name: body.name,
+      price: body.price,
+      categoryId: body.categoryId,
+      flavors: body.flavors,
+      description: body.description,
+      image: body.image,
+      code:"",
+      status:1
+    },
+    ...(options || {}),
+  });
+}
+
+
+// 根据菜单id获取菜品
+export async function getDishItemById(id: string) {
+  const url = `/api/dish/${id}`;
+  return request<any>(url, {
+    method: 'GET',
+  });
+}
+
+
+// 更新菜品
+export async function updateDishItem(body:API.DishListItem,options?: { [key: string]: any }){
+  return request<API.DishListItem>('/api/dish', {
+    method: 'PUT',
+    data: {
+      id: body.id,
+      name: body.name,
+      price: body.price,
+      categoryId: body.categoryId,
+      flavors: body.flavors,
+      description: body.description,
+      image: body.image,
+      code:"",
+      status:1
+    },
+    ...(options || {}),
   });
 }

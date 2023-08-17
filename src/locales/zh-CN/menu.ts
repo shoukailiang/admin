@@ -57,4 +57,8 @@ export default {
   'menu.dish': '菜品管理',
   // 套餐管理
   'menu.setmeal': '套餐管理',
+  // 菜品列表
+  'menu.dish.list': '菜品列表',
+  // 新增菜品
+  'menu.dish.add': '新增菜品',
 };
