@@ -12,14 +12,17 @@ import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Taste from './components/Taste';
+import SealForm from './components/SealForm';
 import  './index.module.scss'
 const { Option } = Select;
 
-interface Flavor {
+
+
+interface SetmealDishes {
   name: string;
-  value: string[];
-  showOption: boolean;
+  price: number;
+  dishId: number;
+  copies: number;
 }
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
@@ -39,7 +42,7 @@ const beforeUpload = (file: RcFile) => {
   return isJpgOrPng && isLt2M;
 };
 
-const Dish: React.FC = () => {
+const SeatMeal: React.FC = () => {
   // 判断路由雨中是否有id
   const { id } = useParams();
 
@@ -62,8 +65,7 @@ const Dish: React.FC = () => {
     }
   };
   // 所有的数据
-  const [allflavors, setALLFlavors] = useState<Flavor[]>([
-    // {name: '口味1', values: ['1', '2', '3']},
+  const [allSetmealDish, setallSetmealDish] = useState<SetmealDishes[]>([
   ]);
 
   // useEffect(() => {
@@ -72,7 +74,7 @@ const Dish: React.FC = () => {
 
   const { run, loading: loadingGetCategoryList } = useRequest(
     async () => {
-      const { data } = await getCategoryList(1);
+      const { data } = await getCategoryList(2);
       return data;
     },
     {
@@ -115,7 +117,6 @@ const Dish: React.FC = () => {
         setFormPrice(res.price);
         setFormCategoryId(res.categoryId);
         setFormDescription(res.description);
-        setALLFlavors(transformedData);
       },
     },
   );
@@ -127,37 +128,29 @@ const Dish: React.FC = () => {
     }
   }, [id]);
 
-  const handleAddTaste = () => {
-    setALLFlavors([...allflavors, { name: '', value: [], showOption: false }]);
+  const handleAddSeal = () => {
+
   };
 
   const handleDelete = (num: number) => {
-    // 删除下标为num的数据
-    const newFlavors = [...allflavors];
-    newFlavors.splice(num, 1);
-    setALLFlavors(newFlavors);
   };
 
-  const handleAdd = (num: number, f: Flavor) => {
-    // 修改下表为num的数据
-    const newFlavors = [...allflavors];
-    newFlavors[num] = f;
-    setALLFlavors(newFlavors);
+  const handleAdd = () => {
   };
 
   const handleTagChange = (num: number, tag: string) => {
-    // 修改下标为num的数据
-    const newFlavors = [...allflavors];
-    const newFlavor = newFlavors[num];
-    newFlavor.value = newFlavor.value.filter((item) => item !== tag);
-    setALLFlavors(newFlavors);
   };
 
-  // const handleImageChange = ({ file }) => {
-  //   if (file.status !== 'uploading') {
-  //     setImageUrl(file.response.data.url);
-  //   }
-  // };
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
+  };
+
 
   const uploadButton = (
     <div>
@@ -178,7 +171,7 @@ const Dish: React.FC = () => {
       onSuccess() {
         //
         message.success('添加成功');
-        nav('/dish/list');
+        nav('/seatmeal/list');
       },
     },
   );
@@ -198,19 +191,19 @@ const Dish: React.FC = () => {
   const checkForm = () => {
     // 检查是否为空
     if (!formName) {
-      message.error('菜品名称不能为空');
+      message.error('套餐名称不能为空');
       return;
     }
     if (!formPrice) {
-      message.error('菜品价格不能为空');
+      message.error('套餐价格不能为空');
       return;
     }
     if (!formCategoryId) {
-      message.error('菜品分类不能为空');
+      message.error('套餐分类不能为空');
       return;
     }
     if (!imageUrl) {
-      message.error('菜品图片不能为空');
+      message.error('套餐图片不能为空');
       return;
     }
   };
@@ -222,12 +215,6 @@ const Dish: React.FC = () => {
       name: formName,
       price: formPrice,
       categoryId: formCategoryId,
-      // 这里需要吧allflavors中的values转换成字符串
-      //   [{name: "甜味", value: "["无糖","少糖","半糖","多糖","全糖"]", showOption: false}]
-      flavors: allflavors.map((item) => ({
-        ...item,
-        value: '["' + item.value.join('","') + '"]',
-      })),
       description: formDescription,
       image: imageUrl,
     });
@@ -244,7 +231,7 @@ const Dish: React.FC = () => {
         //
         console.log(res);
         message.success('更新成功');
-        nav('/dish/list');
+        nav('/seatmeal/list');
       },
     },
   );
@@ -256,10 +243,6 @@ const Dish: React.FC = () => {
       name: formName,
       price: formPrice,
       categoryId: formCategoryId,
-      flavors: allflavors.map((item) => ({
-        ...item,
-        value: '["' + item.value.join('","') + '"]',
-      })),
       description: formDescription,
       image: imageUrl,
     });
@@ -270,12 +253,12 @@ const Dish: React.FC = () => {
       {(loadingGetCategoryList || loadingGetDish) && <Spin />}
       <Form>
         <Form.Item
-          label="菜品名称"
+          label="套餐名称"
           name="name"
           rules={[
             {
               required: true,
-              message: '菜品名称为必填项',
+              message: '套餐名称为必填项',
             },
           ]}
         >
@@ -284,12 +267,12 @@ const Dish: React.FC = () => {
           </div>
         </Form.Item>
         <Form.Item
-          label="菜品价格"
+          label="套餐价格"
           name="price"
           rules={[
             {
               required: true,
-              message: '菜品价格为必填项',
+              message: '套餐价格为必填项',
             },
             {
               pattern: /^[0-9]*$/,
@@ -303,12 +286,12 @@ const Dish: React.FC = () => {
         </Form.Item>
         {/* 菜品分类 */}
         <Form.Item
-          label="菜品分类"
+          label="套餐分类"
           name="categoryId"
           rules={[
             {
               required: true,
-              message: '菜品分类为必填项',
+              message: '套餐分类为必填项',
             },
           ]}
         >
@@ -323,32 +306,26 @@ const Dish: React.FC = () => {
           </div>
         </Form.Item>
         {/* 口味做法配置 */}
-        <Form.Item label="口味做法配置" name="flavors">
-          {allflavors.map((flavors, index) => (
-            <div key={index}>
-              <Taste
-                num={index}
-                handleAdd={handleAdd}
-                handleDelete={handleDelete}
-                item={flavors}
-                handleTagChange={handleTagChange}
-              />
-            </div>
-          ))}
-          <Button type="primary" onClick={handleAddTaste}>
-            添加口味
+        <Form.Item label="套餐菜品" name="flavors" rules={[
+          {
+            required: true,
+            message: '套餐菜品为必填项',
+          },
+        ]}>
+          <Button type="primary" onClick={handleOpenModal}>
+            添加套餐
           </Button>
         </Form.Item>
         {/* 菜品图片,上传图片组件 */}
         <Form.Item
-          label="菜品图片"
+          label="套餐图片"
           name="image"
           valuePropName="fileList"
           getValueFromEvent={handleChange}
           rules={[
             {
               required: true,
-              message: '菜品图片为必填项',
+              message: '套餐图片为必填项',
             },
           ]}
         >
@@ -372,7 +349,7 @@ const Dish: React.FC = () => {
           </Upload>
         </Form.Item>
         {/* 菜品描述 */}
-        <Form.Item label="菜品描述" name="description">
+        <Form.Item label="套餐描述" name="description">
           <div>
             <Input.TextArea
               onChange={(e) => handleForm('description', e.target.value)}
@@ -385,7 +362,8 @@ const Dish: React.FC = () => {
       <Button type="primary" onClick={id && id !== 'new' ? handleUpdate : handleSubmit}>
         提交
       </Button>
+      <SealForm open={modalVisible} onClose={handleCloseModal} categoryList={categoryList}/>
     </PageContainer>
   );
 };
-export default Dish;
+export default SeatMeal;

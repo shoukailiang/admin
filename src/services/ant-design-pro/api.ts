@@ -236,8 +236,8 @@ export async function updateDishStatusBatch(options?: { [key: string]: any},type
 
 
 // 获取菜品分类
-export async function getCategoryList(options?: { [key: string]: any }) {
-  return request<any>('/api/category/list?type=1', {
+export async function getCategoryList(type:number,options?: { [key: string]: any }) {
+  return request<any>(`/api/category/list?type=${type}`, {
     method: 'GET',
     ...(options || {}),
   });
@@ -288,5 +288,72 @@ export async function updateDishItem(body:API.DishListItem,options?: { [key: str
       status:1
     },
     ...(options || {}),
+  });
+}
+
+
+// 获取套餐列表
+export async function getSetMealList(
+  params: {
+    current?: number;
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  let res:any = await request<API.SetMealList>('/api/setmeal/page', {
+    method: 'GET',
+    params: {
+      ...params,
+      // 后端是page，所以多了这一步，antdesignpro是current
+      page: params.current,
+      pageSize: params.pageSize,
+    },
+    ...(options || {}),
+  });
+  // 这里也是为了匹配前端antdesign的格式，离谱
+  const frontendData = {
+    ...res.data,
+    data: res.data.records, // 将 records 映射到 data
+    success: res.data.searchCount, // 将 searchCount 映射到 success
+  };
+  return frontendData;
+}
+
+
+// removeSeatMeal
+export async function removeSeatMeal(options?: { [key: string]: any}) {
+  const queryParams = new URLSearchParams(options).toString();
+  const url = `/api/setmeal?${queryParams}`;
+  return request<Record<string, any>>(url, {
+    method: 'DELETE',
+  });
+}
+
+// updateSeatMeal
+export async function updateSeatMeal(body:API.SetMealListItem,options?: { [key: string]: any }){
+  return request<API.SetMealListItem>('/api/setmeal', {
+    method: 'PUT',
+    data: {
+      id: body.id,
+      name: body.name,
+      price: body.price,
+      categoryId: body.categoryId,
+      setmealDishes: body.setmealDishes,
+      description: body.description,
+      image: body.image,
+      code:"",
+      status:1
+    },
+    ...(options || {}),
+  });
+}
+
+// updateSeatMealStatusBatch
+// setmeal/status/0?ids=1673910098356920321,1673909711453347842
+export async function updateSeatMealStatusBatch(options?: { [key: string]: any},type?:number) {
+  const queryParams = new URLSearchParams(options).toString();
+  const url = `/api/setmeal/status/${type}?${queryParams}`;
+  return request<any>(url, {
+    method: 'POST',
   });
 }

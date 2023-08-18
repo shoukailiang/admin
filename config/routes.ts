@@ -75,6 +75,23 @@ export default [
     ]
   },
   {
+    name: 'package',
+    icon: 'table',
+    path: '/seatmeal',
+    routes : [
+      {
+        name: 'list',
+        path: '/seatmeal/list',
+        component: './SeatMealList',
+      },
+      {
+        name: 'add',
+        path: '/seatmeal/add/:id',
+        component: './SeatMeal',
+      }
+    ]
+  },
+  {
     path: '/',
     redirect: '/welcome',
   },

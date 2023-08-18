@@ -1,0 +1,18 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 2fr;
+  width: 100%;
+  gap: 10px; /* Adjust the gap as needed */
+}
+
+.column1, .column2, .column3 {
+  padding: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.row1{
+  cursor: pointer;
+}
+.row1.clicked p {
+  color: red;
+}

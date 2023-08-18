@@ -113,6 +113,32 @@ declare namespace API {
     copies?:any;
   }
 
+  type SetMealListItem = {
+    id?: string;
+    categoryId?:string;
+    categoryName?:string;
+    code?:string;
+    createTime?: string;
+    createUser?: string;
+    description?: string;
+    name?: string;
+    price?: number;
+    status?: number;
+    updateTime?: string;
+    updateUser?: string;
+    sort?:number;
+    image?:string;
+    setmealDishes?:string[];
+    copies?:number;
+  }
+
+  type SetMealList ={
+    records?: SetMealListItem[];
+    /** 列表的内容总数 */
+    total?: number;
+    searchCount?: boolean;
+  }
+
 
 
   type FakeCaptcha = {
