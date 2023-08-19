@@ -357,3 +357,65 @@ export async function updateSeatMealStatusBatch(options?: { [key: string]: any},
     method: 'POST',
   });
 }
+
+
+// 根据套餐id获取套餐
+// /api/dish/list?categoryId=1676108495805538306
+export async function getcategoryById(id: string) {
+  const url = `/api/dish/list?categoryId=${id}`;
+  return request<any>(url, {
+    method: 'GET',
+  });
+}
+
+
+// 新建套餐
+export async function addSetMealItem(body:API.SetMealListItem,options?: { [key: string]: any }){
+  return request<API.SetMealListItem>('/api/setmeal', {
+    method: 'POST',
+    data: {
+      name: body.name,
+      price: body.price,
+      categoryId: body.categoryId,
+      setmealDishes: body.setmealDishes,
+      description: body.description,
+      image: body.image,
+      code:"",
+      status:1,
+      dishList:[],
+      idType:body.categoryId,
+    },
+    ...(options || {}),
+  });
+}
+
+
+// updateMealItem
+export async function updateMealItem(body:API.SetMealListItem,options?: { [key: string]: any }){
+  return request<API.SetMealListItem>('/api/setmeal', {
+    method: 'PUT',
+    data: {
+      id: body.id,
+      name: body.name,
+      price: body.price,
+      categoryId: body.categoryId,
+      setmealDishes: body.setmealDishes,
+      description: body.description,
+      image: body.image,
+      code:"",
+      status:1,
+      dishList:[],
+      idType:body.categoryId,
+    },
+    ...(options || {}),
+  });
+}
+
+
+// getMeatItemById
+export async function getMeatItemById(id: string) {
+  const url = `/api/setmeal/${id}`;
+  return request<any>(url, {
+    method: 'GET',
+  });
+}

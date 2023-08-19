@@ -1,8 +1,8 @@
 import {
-  addDishItem,
+  addSetMealItem,
   getCategoryList,
-  getDishItemById,
-  updateDishItem,
+  getMeatItemById,
+  updateMealItem,
 } from '@/services/ant-design-pro/api';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
@@ -12,18 +12,10 @@ import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import SealForm from './components/SealForm';
-import  './index.module.scss'
+import SealForm, { setmealDishes } from './components/SealForm';
+import './index.module.scss';
 const { Option } = Select;
 
-
-
-interface SetmealDishes {
-  name: string;
-  price: number;
-  dishId: number;
-  copies: number;
-}
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result as string));
@@ -50,6 +42,8 @@ const SeatMeal: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string>();
 
   const [categoryList, setCategoryList] = useState<{ [key: number]: string }>({});
+  // 传给子组件的
+  const [categoryListModel, setCategoryListModel] = useState<{ [key: number]: string }>({});
 
   const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === 'uploading') {
@@ -65,14 +59,13 @@ const SeatMeal: React.FC = () => {
     }
   };
   // 所有的数据
-  const [allSetmealDish, setallSetmealDish] = useState<SetmealDishes[]>([
-  ]);
+  const [allSetmealDish, setallSetmealDish] = useState<setmealDishes[]>([]);
 
   // useEffect(() => {
   //   console.log(allflavors);
   // }, [allflavors]);
 
-  const { run, loading: loadingGetCategoryList } = useRequest(
+  const { run: getcategoryByIdAndTypeTwo, loading: loadingGetCategoryList } = useRequest(
     async () => {
       const { data } = await getCategoryList(2);
       return data;
@@ -90,33 +83,49 @@ const SeatMeal: React.FC = () => {
     },
   );
 
-  const [formName, setFormName] = useState<string>('');
-  const [formPrice, setFormPrice] = useState<string>('');
-  const [formCategoryId, setFormCategoryId] = useState<string>('');
-  const [formDescription, setFormDescription] = useState<string>('');
-
-  useEffect(() => {
-    run();
-  }, []);
-
-  const { run: getDishRun, loading: loadingGetDish } = useRequest(
-    async (id: string) => {
-      const { data } = await getDishItemById(id);
+  // 传递给子组件的
+  const { run: getcategoryByIdAndTypeOne, loading: loadingGetCategoryListModel } = useRequest(
+    async () => {
+      const { data } = await getCategoryList(1);
       return data;
     },
     {
       manual: true,
       onSuccess(res) {
-        const transformedData = res.flavors.map((item: Flavor) => ({
-          name: item.name,
-          value: JSON.parse(item.value),
-          showOption: item.showOption,
-        }));
+        // 构建一个key是res.id，value是res.name的对象
+        const categoryListModel: { [key: number]: string } = {};
+        res.forEach((item: { id: number; name: string }) => {
+          categoryListModel[item.id] = item.name;
+        });
+        setCategoryListModel(categoryListModel);
+      },
+    },
+  );
+
+  const [formName, setFormName] = useState<string>('');
+  const [formPrice, setFormPrice] = useState<number>(0);
+  const [formCategoryId, setFormCategoryId] = useState<string>('');
+  const [formDescription, setFormDescription] = useState<string>('');
+
+  useEffect(() => {
+    getcategoryByIdAndTypeTwo();
+    getcategoryByIdAndTypeOne();
+  }, []);
+
+  const { run: getDishMeal, loading: loadingGetMeal } = useRequest(
+    async (id: string) => {
+      const { data } = await getMeatItemById(id);
+      return data;
+    },
+    {
+      manual: true,
+      onSuccess(res) {
         setFormName(res.name);
         setImageUrl(res.image);
         setFormPrice(res.price);
         setFormCategoryId(res.categoryId);
         setFormDescription(res.description);
+        setallSetmealDish(res.setmealDishes);
       },
     },
   );
@@ -124,22 +133,9 @@ const SeatMeal: React.FC = () => {
   useEffect(() => {
     // 更新数据
     if (id && id !== 'new') {
-      getDishRun(id);
+      getDishMeal(id);
     }
   }, [id]);
-
-  const handleAddSeal = () => {
-
-  };
-
-  const handleDelete = (num: number) => {
-  };
-
-  const handleAdd = () => {
-  };
-
-  const handleTagChange = (num: number, tag: string) => {
-  };
 
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -151,7 +147,6 @@ const SeatMeal: React.FC = () => {
     setModalVisible(false);
   };
 
-
   const uploadButton = (
     <div>
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -161,15 +156,14 @@ const SeatMeal: React.FC = () => {
 
   const nav = useNavigate();
 
-  const { run: submitDish } = useRequest(
+  const { run: submitMeal } = useRequest(
     async (obj) => {
-      const { data } = await addDishItem(obj);
+      const { data } = await addSetMealItem(obj);
       return data;
     },
     {
       manual: true,
       onSuccess() {
-        //
         message.success('添加成功');
         nav('/seatmeal/list');
       },
@@ -180,7 +174,7 @@ const SeatMeal: React.FC = () => {
     if (key === 'name') {
       setFormName(text);
     } else if (key === 'price') {
-      setFormPrice(text);
+      setFormPrice(Number(text));
     } else if (key === 'categoryId') {
       setFormCategoryId(text);
     } else if (key === 'description') {
@@ -211,18 +205,19 @@ const SeatMeal: React.FC = () => {
   const handleSubmit = () => {
     checkForm();
     // 发送请求
-    submitDish({
+    submitMeal({
       name: formName,
       price: formPrice,
       categoryId: formCategoryId,
       description: formDescription,
       image: imageUrl,
+      setmealDishes: allSetmealDish,
     });
   };
 
-  const { run: updateDish } = useRequest(
+  const { run: updateMeal } = useRequest(
     async (obj) => {
-      const { data } = await updateDishItem(obj);
+      const { data } = await updateMealItem(obj);
       return data;
     },
     {
@@ -238,19 +233,52 @@ const SeatMeal: React.FC = () => {
 
   const handleUpdate = () => {
     checkForm();
-    updateDish({
+    updateMeal({
       id,
       name: formName,
       price: formPrice,
       categoryId: formCategoryId,
       description: formDescription,
       image: imageUrl,
+      setmealDishes: allSetmealDish,
     });
   };
 
+  const onSealFormSubmit = (setmealInfo: setmealDishes[]) => {
+    setallSetmealDish(setmealInfo);
+    handleCloseModal();
+  };
+
+  const handleDelteDish = (id:number) => {
+    console.log(id);
+    setallSetmealDish(allSetmealDish.filter((item)=>item.id!==id));
+  }
+
+  const handleAddDish = (id:number) => {
+    setallSetmealDish(allSetmealDish.map((item)=>{
+      if(item.id===id){
+        item.copies++;
+      }
+      return item;
+    }));
+  }
+
+  const handleReduceDish = (id:number) => {
+    setallSetmealDish(allSetmealDish.map((item)=>{
+      if(item.id===id){
+        if(item.copies>1){
+          item.copies--;
+        }
+      }
+      return item;
+    }));
+  }
+
+
+
   return (
     <PageContainer>
-      {(loadingGetCategoryList || loadingGetDish) && <Spin />}
+      {(loadingGetCategoryList || loadingGetMeal || loadingGetCategoryListModel) && <Spin />}
       <Form>
         <Form.Item
           label="套餐名称"
@@ -305,13 +333,28 @@ const SeatMeal: React.FC = () => {
             </Select>
           </div>
         </Form.Item>
-        {/* 口味做法配置 */}
-        <Form.Item label="套餐菜品" name="flavors" rules={[
-          {
-            required: true,
-            message: '套餐菜品为必填项',
-          },
-        ]}>
+        <Form.Item
+          label="套餐菜品"
+          name="flavors"
+          rules={[
+            {
+              required: true,
+              message: '套餐菜品为必填项',
+            },
+          ]}
+        >
+          <ul>
+            {allSetmealDish.map((item) => {
+              return (
+                <li key={item.id}>
+                  {item.name}-{item.price}-{item.copies}
+                  <button type='button' onClick={()=>handleAddDish(item.id)}>+</button>
+                  <button type='button' onClick={()=>handleReduceDish(item.id)}>-</button>
+                  <button type='button' onClick={()=>handleDelteDish(item.id)}>X</button>
+                </li>
+              );
+            })}
+          </ul>
           <Button type="primary" onClick={handleOpenModal}>
             添加套餐
           </Button>
@@ -362,7 +405,12 @@ const SeatMeal: React.FC = () => {
       <Button type="primary" onClick={id && id !== 'new' ? handleUpdate : handleSubmit}>
         提交
       </Button>
-      <SealForm open={modalVisible} onClose={handleCloseModal} categoryList={categoryList}/>
+      <SealForm
+        open={modalVisible}
+        onClose={handleCloseModal}
+        categoryList={categoryListModel}
+        onSealFormSubmit={onSealFormSubmit}
+      />
     </PageContainer>
   );
 };

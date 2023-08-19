@@ -128,7 +128,7 @@ declare namespace API {
     updateUser?: string;
     sort?:number;
     image?:string;
-    setmealDishes?:string[];
+    setmealDishes?:setmealDishes[];
     copies?:number;
   }
 
