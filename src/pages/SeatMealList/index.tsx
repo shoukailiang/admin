@@ -1,7 +1,6 @@
 import {
   getSetMealList,
   removeSeatMeal,
-  updateSeatMeal,
   updateSeatMealStatusBatch,
 } from '@/services/ant-design-pro/api';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';

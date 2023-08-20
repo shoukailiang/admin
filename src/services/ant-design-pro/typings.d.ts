@@ -94,7 +94,7 @@ declare namespace API {
   }
 
   type DishListItem = {
-    id?: string;
+    id: string;
     categoryId?:string;
     categoryName?:string;
     code?:string;
@@ -102,7 +102,7 @@ declare namespace API {
     createUser?: string;
     description?: string;
     name?: string;
-    price?: number;
+    price: number;
     status?: number;
     updateTime?: string;
     updateUser?: string;

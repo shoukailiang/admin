@@ -3,7 +3,7 @@ import { Button, Form, Select } from 'antd';
 import { FC } from 'react';
 
 const { Option } = Select;
-interface Flavor {
+export interface Flavor {
   name: string;
   value: string[];
   showOption?: boolean;
@@ -89,12 +89,20 @@ const Taste: FC<TasteProps> = ({ num, handleAdd, handleDelete, item, handleTagCh
           <span
             key={tagIndex}
             style={{ cursor: 'pointer', border: '1px solid #ccc', padding: '5px 15px' }}
-            onClick={() => handleTagRemoval(num, tag)}
+            onClick={() => {
+              if(num!==undefined){
+                handleTagRemoval(num, tag)
+              }
+            }}
           >
             {tag}{' '}
             <span
               style={{ fontWeight: 'bold', marginLeft: '5px' }}
-              onClick={() => handleTagRemoval(num, tag)}
+              onClick={() => {
+                if(num!==undefined){
+                  handleTagRemoval(num, tag)
+                }
+              }}
             >
               X
             </span>

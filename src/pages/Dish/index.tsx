@@ -6,21 +6,24 @@ import {
 } from '@/services/ant-design-pro/api';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
+import { useNavigate, useParams } from '@umijs/max';
 import { useRequest } from 'ahooks';
 import { Button, Form, Input, message, Select, Spin, Upload } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import Taste from './components/Taste';
-import  './index.module.scss'
+import './index.module.scss';
+import { Flavor } from './components/Taste';
 const { Option } = Select;
 
-interface Flavor {
+// 后端返回的value是string
+interface ResFlavor{
   name: string;
-  value: string[];
-  showOption: boolean;
+  value: string;
+  showOption?: boolean;
 }
+
 const getBase64 = (img: RcFile, callback: (url: string) => void) => {
   const reader = new FileReader();
   reader.addEventListener('load', () => callback(reader.result as string));
@@ -40,13 +43,13 @@ const beforeUpload = (file: RcFile) => {
 };
 
 const Dish: React.FC = () => {
-  // 判断路由雨中是否有id
+  // 判断路由中是否有id
   const { id } = useParams();
 
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
 
-  const [categoryList, setCategoryList] = useState<{ [key: number]: string }>({});
+  const [categoryList, setCategoryList] = useState<{ [key: string]: string }>({});
 
   const handleChange: UploadProps['onChange'] = (info: UploadChangeParam<UploadFile>) => {
     if (info.file.status === 'uploading') {
@@ -105,7 +108,7 @@ const Dish: React.FC = () => {
     {
       manual: true,
       onSuccess(res) {
-        const transformedData = res.flavors.map((item: Flavor) => ({
+        const transformedData = res.flavors.map((item: ResFlavor) => ({
           name: item.name,
           value: JSON.parse(item.value),
           showOption: item.showOption,
@@ -170,15 +173,16 @@ const Dish: React.FC = () => {
 
   const { run: submitDish } = useRequest(
     async (obj) => {
-      const { data } = await addDishItem(obj);
-      return data;
+      await addDishItem(obj);
     },
     {
       manual: true,
       onSuccess() {
-        //
         message.success('添加成功');
         nav('/dish/list');
+      },
+      onError(e) {
+          message.error(e.message);
       },
     },
   );
@@ -235,17 +239,17 @@ const Dish: React.FC = () => {
 
   const { run: updateDish } = useRequest(
     async (obj) => {
-      const { data } = await updateDishItem(obj);
-      return data;
+      await updateDishItem(obj);
     },
     {
       manual: true,
-      onSuccess(res) {
-        //
-        console.log(res);
+      onSuccess() {
         message.success('更新成功');
         nav('/dish/list');
       },
+      onError(){
+        message.error('更新失败');
+      }
     },
   );
 
@@ -324,20 +328,22 @@ const Dish: React.FC = () => {
         </Form.Item>
         {/* 口味做法配置 */}
         <Form.Item label="口味做法配置" name="flavors">
-          {allflavors.map((flavors, index) => (
-            <div key={index}>
-              <Taste
-                num={index}
-                handleAdd={handleAdd}
-                handleDelete={handleDelete}
-                item={flavors}
-                handleTagChange={handleTagChange}
-              />
-            </div>
-          ))}
-          <Button type="primary" onClick={handleAddTaste}>
-            添加口味
-          </Button>
+          <div>
+            {allflavors.map((flavors, index) => (
+              <div key={index}>
+                <Taste
+                  num={index}
+                  handleAdd={handleAdd}
+                  handleDelete={handleDelete}
+                  item={flavors}
+                  handleTagChange={handleTagChange}
+                />
+              </div>
+            ))}
+            <Button type="primary" onClick={handleAddTaste}>
+              添加口味
+            </Button>
+          </div>
         </Form.Item>
         {/* 菜品图片,上传图片组件 */}
         <Form.Item

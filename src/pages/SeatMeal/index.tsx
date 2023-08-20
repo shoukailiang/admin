@@ -11,7 +11,7 @@ import { Button, Form, Input, message, Select, Spin, Upload } from 'antd';
 import type { UploadChangeParam } from 'antd/es/upload';
 import type { RcFile, UploadFile, UploadProps } from 'antd/es/upload/interface';
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from '@umijs/max';
 import SealForm, { setmealDishes } from './components/SealForm';
 import './index.module.scss';
 const { Option } = Select;
@@ -41,7 +41,7 @@ const SeatMeal: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
 
-  const [categoryList, setCategoryList] = useState<{ [key: number]: string }>({});
+  const [categoryList, setCategoryList] = useState<{ [key: string]: string }>({});
   // 传给子组件的
   const [categoryListModel, setCategoryListModel] = useState<{ [key: number]: string }>({});
 
@@ -158,8 +158,7 @@ const SeatMeal: React.FC = () => {
 
   const { run: submitMeal } = useRequest(
     async (obj) => {
-      const { data } = await addSetMealItem(obj);
-      return data;
+      await addSetMealItem(obj);
     },
     {
       manual: true,
@@ -217,17 +216,17 @@ const SeatMeal: React.FC = () => {
 
   const { run: updateMeal } = useRequest(
     async (obj) => {
-      const { data } = await updateMealItem(obj);
-      return data;
+      await updateMealItem(obj);
     },
     {
       manual: true,
-      onSuccess(res) {
-        //
-        console.log(res);
+      onSuccess() {
         message.success('更新成功');
         nav('/seatmeal/list');
       },
+      onError() {
+        message.error('更新失败');
+      }
     },
   );
 
@@ -249,12 +248,12 @@ const SeatMeal: React.FC = () => {
     handleCloseModal();
   };
 
-  const handleDelteDish = (id:number) => {
+  const handleDelteDish = (id:string) => {
     console.log(id);
     setallSetmealDish(allSetmealDish.filter((item)=>item.id!==id));
   }
 
-  const handleAddDish = (id:number) => {
+  const handleAddDish = (id:string) => {
     setallSetmealDish(allSetmealDish.map((item)=>{
       if(item.id===id){
         item.copies++;
@@ -263,7 +262,7 @@ const SeatMeal: React.FC = () => {
     }));
   }
 
-  const handleReduceDish = (id:number) => {
+  const handleReduceDish = (id:string) => {
     setallSetmealDish(allSetmealDish.map((item)=>{
       if(item.id===id){
         if(item.copies>1){
@@ -343,21 +342,23 @@ const SeatMeal: React.FC = () => {
             },
           ]}
         >
-          <ul>
-            {allSetmealDish.map((item) => {
-              return (
-                <li key={item.id}>
-                  {item.name}-{item.price}-{item.copies}
-                  <button type='button' onClick={()=>handleAddDish(item.id)}>+</button>
-                  <button type='button' onClick={()=>handleReduceDish(item.id)}>-</button>
-                  <button type='button' onClick={()=>handleDelteDish(item.id)}>X</button>
-                </li>
-              );
-            })}
-          </ul>
-          <Button type="primary" onClick={handleOpenModal}>
-            添加套餐
-          </Button>
+          <div>
+            <ul>
+              {allSetmealDish.map((item) => {
+                return (
+                  <li key={item.id}>
+                    {item.name}-{item.price}-{item.copies}
+                    <button type='button' onClick={()=>handleAddDish(item.id)}>+</button>
+                    <button type='button' onClick={()=>handleReduceDish(item.id)}>-</button>
+                    <button type='button' onClick={()=>handleDelteDish(item.id)}>X</button>
+                  </li>
+                );
+              })}
+            </ul>
+            <Button type="primary" onClick={handleOpenModal}>
+              添加套餐
+            </Button>
+          </div>
         </Form.Item>
         {/* 菜品图片,上传图片组件 */}
         <Form.Item

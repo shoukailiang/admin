@@ -5,7 +5,7 @@ import './index.css';
 
 export type setmealDishes = {
   copies: number;
-  id: number;
+  id: string;
   name: string;
   price: number;
 };
@@ -14,7 +14,7 @@ export type setmealDishes = {
 type Props = {
   open: boolean;
   onClose: () => void;
-  categoryList: { [key: number]: string };
+  categoryList: { [key: string]: string };
   // 将这个套餐的信息传递给父组件
   onSealFormSubmit: (setmealInfo: setmealDishes[]) => void;
 };
@@ -23,7 +23,7 @@ type Props = {
 const SealForm: React.FC<Props> = ({ open, onClose, categoryList,onSealFormSubmit }) => {
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   // 这个是我选择的菜品
-  const [selectedDishItems, setSelectedDishItems] = useState<number[]>([]);
+  const [selectedDishItems, setSelectedDishItems] = useState<string[]>([]);
 
   // 这个是后端返回给我当前这个类别的所有菜品
   const [dishItem, setDishItem] = useState<API.DishListItem[]>([]);
@@ -40,7 +40,7 @@ const SealForm: React.FC<Props> = ({ open, onClose, categoryList,onSealFormSubmi
 
   };
 
-  const toggleDishItemSelection = (itemId: number) => {
+  const toggleDishItemSelection = (itemId: string) => {
     setSelectedDishItems((prevSelected) => {
       if (prevSelected.includes(itemId)) {
         return prevSelected.filter((id) => id !== itemId);
@@ -50,11 +50,12 @@ const SealForm: React.FC<Props> = ({ open, onClose, categoryList,onSealFormSubmi
     });
   };
 
-  const handleDelete = (id:number) => {
+  const handleDelete = (id:string) => {
     setSelectedDishItems(selectedDishItems.filter((item)=>item!==id));
   }
 
   const onOk = () => {
+    console.log(selectedDishItems)
     const formattedDishItems = selectedDishItems.map((id) => ({
       copies: 1,
       id: id,
@@ -71,7 +72,7 @@ const SealForm: React.FC<Props> = ({ open, onClose, categoryList,onSealFormSubmi
     <Modal title="添加套餐" centered open={open} onOk={onOk} onCancel={onClose} width={1000}>
       <div className="grid-container">
         <div className="column1">
-          {Object.keys(categoryList).map((key, index) => {
+          {Object.keys(categoryList).map((key:string, index:number) => {
             const item = categoryList[key];
             const isClicked = index === clickedIndex;
             return (
@@ -103,12 +104,16 @@ const SealForm: React.FC<Props> = ({ open, onClose, categoryList,onSealFormSubmi
           ) : (
             selectedDishItems.map((id) => {
               const item = allDishItem.find((item) => item.id === id);
-              return (
-                <div className="row3" key={id} >
-                  {item?.name} - {item?.price/100}元
-                  <button type='button' onClick={()=>handleDelete(id)}>X</button>
-                </div>
-              );
+              if(item){
+                return (
+                  <div className="row3" key={id} >
+                    {item?.name} - {item.price/100}元
+                    <button type='button' onClick={()=>handleDelete(id)}>X</button>
+                  </div>
+                );
+              }else{
+                return null;
+              }
             })
           )}
         </div>

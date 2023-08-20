@@ -160,13 +160,13 @@ const CategoryList: React.FC = () => {
     setOpen(true);
   };
 
-  const handleOk = () => {
+  const handleOk = async () => {
     setModalText('你确定删除分类吗？');
-    // setConfirmLoading(true);
-    DeleteCategory(record);
+    setConfirmLoading(true);
+    await DeleteCategory(record);
     setRecord({});
     setOpen(false);
-    // setConfirmLoading(false);
+    setConfirmLoading(false);
   };
 
   const handleCancel = () => {
@@ -174,8 +174,6 @@ const CategoryList: React.FC = () => {
     setOpen(false);
     setRecord({});
   };
-
-
 
   const columns: ProColumns<API.CategoryListItem>[] = [
     {
